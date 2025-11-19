@@ -1,13 +1,204 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discount</title>
-    <link rel="icon" type="image/x-icon" href="/image/icon.png">
-    <link rel="stylesheet" href="/css/discount.css">
+<meta charset="UTF-8">
+<title>Relax Cafe - Discount</title>
+
+<style>
+    body {
+        font-family: "Prompt", sans-serif;
+        background-color: #d8bc9b;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Navbar */
+    .navbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 70px;
+        padding: 20px 0;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .navbar a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .navbar .active {
+        border-bottom: 3px solid white;
+        padding-bottom: 5px;
+    }
+
+    /* กล่องฟอร์ม */
+    .form-container {
+        background: white;
+        width: 92%;
+        margin: 20px auto;
+        border: 3px solid #7e50c8;
+        border-radius: 6px;
+        padding: 40px;
+        box-sizing: border-box;
+    }
+
+    h2 {
+        text-align: center;
+        margin-top: 0;
+        font-size: 28px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-top: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    input, select {
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+        background: #f1f1e9;
+        font-size: 16px;
+    }
+
+    /* ปุ่มเพิ่มลดราคา */
+    .submit-btn {
+        background-color: #69c84c;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        cursor: pointer;
+        margin-top: 25px;
+        display: block;
+        margin-left: auto;
+    }
+
+    /* ปุ่มล่าง 3 ปุ่ม */
+    .bottom-menu {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin: 40px 0;
+    }
+
+    .menu-btn {
+        background-color: white;
+        border: none;
+        padding: 18px 40px;
+        border-radius: 45px;
+        font-size: 22px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+        transition: 0.2s;
+    }
+
+    .menu-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.2);
+    }
+</style>
+
 </head>
 <body>
-    
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <a>Relax Cafe</a>
+        <a>Menu</a>
+        <a>Orders</a>
+        <a>Users</a>
+        <a class="active">Discount</a>
+    </div>
+
+    <!-- กล่องฟอร์ม -->
+    <div class="form-container">
+        <h2>เพิ่มโปรโมชั่น</h2>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label>Promotion_name</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Menu_id</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Discount_percent</label>
+                <input type="number">
+            </div>
+
+            <div class="form-group">
+                <label>Start_date</label>
+                <input type="date">
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <select>
+                    <option>Active</option>
+                    <option>Inactive</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>end_date</label>
+                <input type="date">
+            </div>
+        </div>
+
+        <button class="submit-btn">เพิ่มลดราคา</button>
+    </div>
+
+    <!-- ปุ่มด้านล่าง -->
+    <div class="bottom-menu">
+        <button class="menu-btn" onclick="goToAddDiscount()">เพิ่มลดราคา</button>
+        <button class="menu-btn" onclick="goToDiscountList()">ลดราคา</button>
+        <button class="menu-btn" onclick="goToPromotion()">โปรโมชัน</button>
+    </div>
+
+
+<script>
+    function goToAddDiscount() {
+        alert("เปิดหน้า เพิ่มลดราคา");
+        // window.location.href = "add_discount.html";
+    }
+
+    function goToDiscountList() {
+        alert("เปิดหน้า รายการลดราคา");
+        // window.location.href = "discount_list.html";
+    }
+
+    function goToPromotion() {
+        alert("เปิดหน้า โปรโมชัน");
+        // window.location.href = "promotion.html";
+    }
+</script>
+
 </body>
 </html>
