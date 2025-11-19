@@ -1,136 +1,249 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการเมนูอาหาร</title>
-    <link rel="stylesheet" href="css/users.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        /* CSS เพิ่มเติม */
-        .menu-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
-        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
-        .status-available { background-color: #d1fae5; color: #065f46; }
-        .status-unavailable { background-color: #fee2e2; color: #991b1b; }
-        .price-text { font-weight: bold; color: #2563eb; }
-        .loading { text-align: center; padding: 20px; color: #666; }
-    </style>
+<meta charset="UTF-8">
+<title>Relax Cafe - Menu Management</title>
+<style>
+    /* --- Themes (Relax Cafe Style) --- */
+    body { font-family: "Prompt", sans-serif; background-color: #d8bc9b; margin: 0; padding: 0; }
+    
+    /* Navbar */
+    .navbar { display: flex; justify-content: center; gap: 70px; padding: 20px 0; font-size: 22px; font-weight: bold; }
+    .navbar a { color: #5d5d5d; text-decoration: none; transition: color 0.2s; }
+    .navbar .active { color: #7e50c8; border-bottom: 3px solid #7e50c8; padding-bottom: 5px; }
+    
+    /* Container */
+    .content-container { background: #fdfae9; width: 90%; margin: 20px auto 0; border-radius: 6px; padding: 40px; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+    
+    h2 { text-align: center; margin-top: 0; font-size: 28px; color: #5d5d5d; }
+    
+    /* Form Styles */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; }
+    .form-group { display: flex; flex-direction: column; }
+    label { margin-bottom: 6px; font-weight: 600; color: #5d5d5d; }
+    input, select, textarea { padding: 10px; border-radius: 6px; border: none; background: #f1f1e9; font-size: 16px; }
+    textarea { resize: vertical; height: 80px; }
+    
+    .submit-btn { background-color: #69c84c; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; margin-top: 25px; display: block; margin-left: auto; }
+    .submit-btn:hover { background-color: #58a83e; }
+
+    /* List Styles */
+    .list-header { display: grid; grid-template-columns: 60px 80px 1fr 1fr 100px 100px 60px; gap: 15px; padding: 12px 0; text-align: center; font-weight: bold; background-color: #f1f1e9; margin-top: 20px; border-radius: 6px; border-bottom: 2px solid #ccc; }
+    
+    .list-row { display: grid; grid-template-columns: 60px 80px 1fr 1fr 100px 100px 60px; gap: 15px; padding: 12px 0; text-align: center; background-color: #f1f1e9; margin-top: 10px; border-radius: 6px; align-items: center; }
+    
+    .menu-img-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; background: #ccc; }
+    .status-active { color: #28a745; font-weight: bold; }
+    .status-inactive { color: #dc3545; font-weight: bold; }
+    .delete-btn { cursor: pointer; color: #ff0000; font-size: 20px; }
+
+    /* Bottom Menu Tabs */
+    .bottom-menu { display: flex; justify-content: center; gap: 40px; margin: 40px 0; }
+    .menu-btn { background-color: white; border: none; padding: 18px 40px; border-radius: 45px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); transition: 0.2s; border: 2px solid transparent; }
+    .menu-btn.active { background-color: #f0e6ff; border: 2px solid #7e50c8; color: #7e50c8; box-shadow: 0px 4px 15px rgba(126, 80, 200, 0.4); }
+    
+    /* Toggle Pages */
+    .page-content { display: none; }
+    .page-content.active { display: block; }
+</style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <header class="page-header">
-            <div class="header-left">
-                <h2>จัดการเมนูอาหาร/เครื่องดื่ม</h2>
-                <p class="subtitle">รายการสินค้าทั้งหมดในร้าน</p>
-            </div>
-            <div class="header-right">
-                <a href="index.html" class="btn btn-secondary">&larr; กลับหน้าหลัก</a>
-            </div>
-        </header>
+    <div class="navbar">
+        <a href="index.html">Relax Cafe</a>
+        <a class="active">Menu</a>
+        <a href="Orders .html">Orders</a>
+        <a href="Users.html">Users</a>
+        <a href="Discount .html">Discount</a>
+    </div>
+    
+    <div class="content-container">
 
-        <div class="action-bar">
-            <a href="Add_menu.html" class="btn btn-primary">+ เพิ่มเมนูใหม่</a>
+        <!-- 1. หน้าแสดงรายการเมนู -->
+        <div id="menu-list-page" class="page-content active">
+            <h2>รายการเมนูอาหาร</h2>
+            <div class="list-header">
+                <span>ID</span>
+                <span>รูปภาพ</span>
+                <span style="text-align:left;">ชื่อเมนู</span>
+                <span>หมวดหมู่</span>
+                <span>ราคา</span>
+                <span>สถานะ</span>
+                <span>ลบ</span>
+            </div>
+            <div id="menu-list-rows">
+                <!-- Data will come here via JS -->
+            </div>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th width="5%">ID</th>
-                        <th width="10%">รูปภาพ</th>
-                        <th width="15%">ชื่อเมนู</th>
-                        <th width="10%">หมวดหมู่</th>
-                        <th width="10%">ราคา</th>
-                        <th width="25%">รายละเอียด</th>
-                        <th width="10%">สถานะ</th>
-                        <th width="15%">จัดการ</th>
-                    </tr>
-                </thead>
-                <!-- ใส่ ID ให้ tbody เพื่ออ้างอิงใน JavaScript -->
-                <tbody id="menuTableBody">
-                    <tr><td colspan="8" class="loading">กำลังโหลดข้อมูล...</td></tr>
-                </tbody>
-            </table>
+        <!-- 2. หน้าเพิ่มเมนู -->
+        <div id="add-menu-page" class="page-content">
+            <h2>เพิ่มเมนูใหม่</h2>
+            <form id="add-menu-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ชื่อเมนู (Menu Name)</label>
+                        <input type="text" name="menu_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>หมวดหมู่ (Category)</label>
+                        <select name="category_id" required>
+                            <option value="">-- เลือกหมวดหมู่ --</option>
+                            <option value="1">Coffee</option>
+                            <option value="2">Bakery</option>
+                            <option value="3">Non-Coffee</option>
+                            <option value="4">Food</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ราคา (Price)</label>
+                        <input type="number" name="price" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>สถานะ (Status)</label>
+                        <select name="status" required>
+                            <option value="available">พร้อมขาย (Available)</option>
+                            <option value="unavailable">หมด (Unavailable)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รูปภาพ (Image)</label>
+                        <input type="file" name="image_file" accept="image/*">
+                    </div>
+
+                    <div class="form-group">
+                        <label>คำอธิบาย (Description)</label>
+                        <textarea name="description"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">บันทึกเมนู</button>
+            </form>
         </div>
 
     </div>
 
-    <!-- ส่วน Script สำหรับดึงข้อมูล -->
-    <script>
-        // ทำงานเมื่อโหลดหน้าเว็บเสร็จ
-        document.addEventListener('DOMContentLoaded', function() {
-            loadMenuData();
-        });
+    <!-- ปุ่มสลับหน้าด้านล่าง -->
+    <div class="bottom-menu">
+        <button class="menu-btn active" id="btn-list" onclick="showPage('menu-list-page', this)">รายการเมนู</button>
+        <button class="menu-btn" id="btn-add" onclick="showPage('add-menu-page', this)">เพิ่มเมนูใหม่</button>
+    </div>
 
-        function loadMenuData() {
-            // เรียกไฟล์ PHP ผ่าน Fetch API
-            fetch('api_get_menu.php')
-                .then(response => response.json())
-                .then(data => {
-                    const tableBody = document.getElementById('menuTableBody');
-                    tableBody.innerHTML = ''; // ล้างข้อความ "กำลังโหลด..."
+<script>
+    // --- 1. ฟังก์ชันสลับหน้า (Tab Switching) ---
+    function showPage(pageId, btn) {
+        // ซ่อนทุกหน้า
+        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+        // เอา active ออกจากปุ่มทุกปุ่ม
+        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+        
+        // แสดงหน้าที่เลือก และทำปุ่มให้ active
+        document.getElementById(pageId).classList.add('active');
+        if(btn) btn.classList.add('active');
 
-                    if (data.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">ไม่พบข้อมูลเมนู</td></tr>';
-                        return;
-                    }
+        // ถ้าเปิดหน้ารายการ ให้โหลดข้อมูลใหม่เสมอ
+        if(pageId === 'menu-list-page') {
+            loadMenus();
+        }
+    }
 
-                    // วนลูปข้อมูลที่ได้มาสร้าง HTML
-                    let htmlContent = '';
-                    data.forEach(menu => {
-                        
-                        // ตรวจสอบสถานะเพื่อเลือกสี
-                        let statusBadge = '';
-                        if (menu.Status === 'available') {
-                            statusBadge = '<span class="status-badge status-available">พร้อมขาย</span>';
-                        } else {
-                            statusBadge = '<span class="status-badge status-unavailable">หมด</span>';
-                        }
+    // --- 2. โหลดข้อมูลเมนู (Fetch GET) ---
+    function loadMenus() {
+        const listArea = document.getElementById('menu-list-rows');
+        listArea.innerHTML = '<p style="text-align:center;">กำลังโหลดข้อมูล...</p>';
 
-                        // ตรวจสอบรูปภาพ
-                        let imageTag = menu.Image_url 
-                            ? `<img src="${menu.Image_url}" class="menu-img" alt="Menu">` 
-                            : '<span>ไม่มีรูป</span>';
+        fetch('api_menu.php')
+            .then(response => response.json())
+            .then(data => {
+                listArea.innerHTML = '';
+                if (data.length === 0) {
+                    listArea.innerHTML = '<p style="text-align:center;">ไม่พบเมนูในระบบ</p>';
+                    return;
+                }
 
-                        // จัดรูปแบบราคา (ใส่ลูกน้ำ)
-                        let priceFormatted = parseFloat(menu.Price).toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                data.forEach(menu => {
+                    // เช็คว่ามีรูปไหม
+                    const imgTag = menu.Image_url 
+                        ? `<img src="${menu.Image_url}" class="menu-img-thumb">`
+                        : `<div class="menu-img-thumb" style="display:flex;align-items:center;justify-content:center;color:#666;font-size:10px;">No Img</div>`;
 
-                        // สร้างแถวตาราง
-                        htmlContent += `
-                            <tr>
-                                <td>${menu.Menu_id}</td>
-                                <td>${imageTag}</td>
-                                <td>${menu.Menu_name}</td>
-                                <td style="text-align:center;">${menu.Category_id}</td>
-                                <td class="price-text">${priceFormatted} ฿</td>
-                                <td>${menu.Description || '-'}</td>
-                                <td>${statusBadge}</td>
-                                <td>
-                                    <a href="edit_menu.html?id=${menu.Menu_id}" class="btn-edit">แก้ไข</a>
-                                    <a href="#" onclick="deleteMenu(${menu.Menu_id})" class="btn-delete">ลบ</a>
-                                </td>
-                            </tr>
-                        `;
-                    });
+                    // จัดการสีสถานะ
+                    const statusClass = menu.Status === 'available' ? 'status-active' : 'status-inactive';
+                    const statusText = menu.Status === 'available' ? 'พร้อมขาย' : 'หมด';
 
-                    // เอา HTML ที่สร้างใส่เข้าไปในตาราง
-                    tableBody.innerHTML = htmlContent;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('menuTableBody').innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+                    const row = document.createElement('div');
+                    row.className = 'list-row';
+                    row.innerHTML = `
+                        <span>${menu.Menu_id}</span>
+                        <div>${imgTag}</div>
+                        <span style="text-align:left; font-weight:500;">${menu.Menu_name}</span>
+                        <span>ID: ${menu.Category_id}</span>
+                        <span style="font-weight:bold; color:#2563eb;">${parseFloat(menu.Price).toFixed(0)} ฿</span>
+                        <span class="${statusClass}">${statusText}</span>
+                        <span class="delete-btn" onclick="deleteMenu(${menu.Menu_id})">❌</span>
+                    `;
+                    listArea.appendChild(row);
                 });
-        }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                listArea.innerHTML = '<p style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+            });
+    }
 
-        function deleteMenu(id) {
-            if(confirm('คุณต้องการลบเมนูนี้ใช่หรือไม่?')) {
-                // ส่งค่าไปหาไฟล์ PHP สำหรับลบ (ต้องสร้างไฟล์ delete_menu.php เพิ่ม)
-                window.location.href = `delete_menu.php?id=${id}`;
+    // --- 3. เพิ่มเมนู (Fetch POST with FormData) ---
+    document.getElementById('add-menu-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // ใช้ FormData เพราะมีการอัปโหลดไฟล์รูปภาพ
+        const formData = new FormData(this);
+
+        fetch('api_menu.php', {
+            method: 'POST',
+            body: formData // ไม่ต้องตั้ง Content-Type เพราะ FormData จัดการให้เอง
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                alert('บันทึกเมนูเรียบร้อยแล้ว!');
+                this.reset(); // ล้างฟอร์ม
+                // สลับไปหน้า List
+                showPage('menu-list-page', document.getElementById('btn-list'));
+            } else {
+                alert('เกิดข้อผิดพลาด: ' + result.message);
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        });
+    });
+
+    // --- 4. ลบเมนู (Fetch GET action=delete) ---
+    function deleteMenu(id) {
+        if(confirm('คุณต้องการลบเมนู ID: ' + id + ' ใช่หรือไม่?')) {
+            fetch(`api_menu.php?action=delete&id=${id}`)
+                .then(res => res.json())
+                .then(result => {
+                    if(result.status === 'success') {
+                        loadMenus(); // โหลดตารางใหม่
+                    } else {
+                        alert('ลบไม่สำเร็จ: ' + result.message);
+                    }
+                })
+                .catch(err => console.error(err));
         }
-    </script>
+    }
+
+    // เริ่มต้นทำงาน
+    document.addEventListener('DOMContentLoaded', () => {
+        loadMenus();
+    });
+
+</script>
 
 </body>
 </html>
