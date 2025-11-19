@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มผู้ใช้งานใหม่</title>
+    <link rel="stylesheet" href="css/users.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container">
+        
+        <header class="page-header">
+            <div class="header-left">
+                <h2>เพิ่มผู้ใช้งานใหม่ (Add User)</h2>
+                <p class="subtitle">กรอกข้อมูลเพื่อสร้างบัญชีสมาชิกใหม่</p>
+            </div>
+            <div class="header-right">
+                <a href="Users.html" class="btn btn-secondary">
+                    ยกเลิก / ย้อนกลับ
+                </a>
+            </div>
+        </header>
+
+        <form action="Users.html" onsubmit="alert('บันทึกข้อมูลเรียบร้อย (Demo)');">
+            <div class="form-container">
+                
+                <div class="form-group">
+                    <label for="username">Username <span class="required">*</span></label>
+                    <input type="text" id="username" name="username" placeholder="ตั้งชื่อผู้ใช้" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password <span class="required">*</span></label>
+                    <input type="password" id="password" name="password" placeholder="กำหนดรหัสผ่าน" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" id="fullname" name="fullname" placeholder="ชื่อ-นามสกุลจริง">
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Role <span class="required">*</span></label>
+                    <select id="role" name="role">
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Manager">Manager</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" placeholder="08x-xxx-xxxx">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="example@mail.com">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="address">Address</label>
+                    <textarea id="address" name="address" placeholder="ที่อยู่ปัจจุบัน..."></textarea>
+                </div>
+
+                <div class="form-actions full-width">
+                    <button type="submit" class="btn btn-primary btn-large">บันทึกข้อมูล</button>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+
+</body>
+</html>
