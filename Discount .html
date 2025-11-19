@@ -1,13 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discount</title>
-    <link rel="icon" type="image/x-icon" href="/image/icon.png">
-    <link rel="stylesheet" href="/css/discount.css">
+<meta charset="UTF-8">
+<title>Relax Cafe - Discount</title>
+<link rel="stylesheet" href="/css/discount.css">
 </head>
 <body>
-    
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <a>Relax Cafe</a>
+        <a>Menu</a>
+        <a>Orders</a>
+        <a>Users</a>
+        <a class="active">Discount</a>
+    </div>
+
+    <!-- กล่องฟอร์ม -->
+    <div class="form-container">
+        <h2>เพิ่มโปรโมชั่น</h2>
+
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label>Promotion_name</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Menu_id</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Discount_percent</label>
+                <input type="number">
+            </div>
+
+            <div class="form-group">
+                <label>Start_date</label>
+                <input type="date">
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <select>
+                    <option>Active</option>
+                    <option>Inactive</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>end_date</label>
+                <input type="date">
+            </div>
+        </div>
+
+        <button class="submit-btn">เพิ่มลดราคา</button>
+    </div>
+
+    <!-- ปุ่มด้านล่าง -->
+    <div class="bottom-menu">
+        <button class="menu-btn" onclick="goToAddDiscount()">เพิ่มลดราคา</button>
+        <button class="menu-btn" onclick="goToDiscountList()">ลดราคา</button>
+        <button class="menu-btn" onclick="goToPromotion()">โปรโมชัน</button>
+    </div>
+
+
+<script>
+    function goToAddDiscount() {
+        alert("เปิดหน้า เพิ่มลดราคา");
+        // window.location.href = "add_discount.html";
+    }
+
+    function goToDiscountList() {
+        alert("เปิดหน้า รายการลดราคา");
+        // window.location.href = "discount_list.html";
+    }
+
+    function goToPromotion() {
+        alert("เปิดหน้า โปรโมชัน");
+        // window.location.href = "promotion.html";
+    }
+</script>
+
 </body>
 </html>
