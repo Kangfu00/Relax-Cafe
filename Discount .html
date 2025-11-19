@@ -5,6 +5,7 @@
 <title>Relax Cafe - Discount</title>
 
 <style>
+    /* ------------------- CSS ทั่วไป (คงไว้ตามเดิม) ------------------- */
     body {
         font-family: "Prompt", sans-serif;
         background-color: #d8bc9b;
@@ -24,30 +25,34 @@
     }
 
     .navbar a {
-        color: white;
+        color: #5d5d5d; /* ปรับสีเป็นสีเทาตามภาพต้นฉบับ */
         text-decoration: none;
+        transition: color 0.2s;
     }
 
     .navbar .active {
-        border-bottom: 3px solid white;
+        color: #7e50c8; /* สีม่วงสำหรับหน้าที่กำลังใช้งาน */
+        border-bottom: 3px solid #7e50c8;
         padding-bottom: 5px;
     }
 
-    /* กล่องฟอร์ม */
-    .form-container {
-        background: white;
-        width: 92%;
-        margin: 20px auto;
-        border: 3px solid #7e50c8;
+    /* กล่องเนื้อหาหลัก (Container) */
+    .content-container {
+        background: #fdfae9; /* สีพื้นหลังกล่องใหญ่ */
+        width: 90%;
+        margin: 20px auto 0;
         border-radius: 6px;
         padding: 40px;
         box-sizing: border-box;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
+    /* ------------------- CSS สำหรับฟอร์ม (Form) ------------------- */
     h2 {
         text-align: center;
         margin-top: 0;
         font-size: 28px;
+        color: #5d5d5d;
     }
 
     .form-grid {
@@ -65,6 +70,7 @@
     label {
         margin-bottom: 6px;
         font-weight: 600;
+        color: #5d5d5d;
     }
 
     input, select {
@@ -75,13 +81,13 @@
         font-size: 16px;
     }
 
-    /* ปุ่มเพิ่มลดราคา */
+    /* ปุ่มฟอร์ม (เพิ่มลดราคา/เพิ่มโปรโมชั่น) */
     .submit-btn {
         background-color: #69c84c;
         color: white;
         padding: 12px 25px;
         border: none;
-        border-radius: 10px;
+        border-radius: 6px; /* ปรับให้เข้ากับภาพต้นฉบับ */
         font-size: 18px;
         cursor: pointer;
         margin-top: 25px;
@@ -89,7 +95,61 @@
         margin-left: auto;
     }
 
-    /* ปุ่มล่าง 3 ปุ่ม */
+    /* ------------------- CSS สำหรับรายการ (List) ------------------- */
+    .list-header, .list-row {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr) 50px; /* 7 คอลัมน์ข้อมูล + 1 คอลัมน์สำหรับปุ่มลบ */
+        gap: 10px;
+        padding: 12px 0;
+        text-align: center;
+        font-size: 16px;
+    }
+
+    .list-header {
+        font-weight: bold;
+        background-color: #f1f1e9;
+        margin-top: 20px;
+        border-radius: 6px;
+        border-bottom: 2px solid #ccc;
+    }
+
+    .list-row {
+        background-color: #f1f1e9;
+        margin-top: 10px;
+        border-radius: 6px;
+        align-items: center;
+    }
+    
+    .list-row-promotion { /* สำหรับหน้าโปรโมชั่นที่มี 2 แถว */
+        display: grid;
+        grid-template-rows: auto auto;
+        padding: 15px;
+        background-color: #f1f1e9;
+        margin-top: 10px;
+        border-radius: 6px;
+    }
+
+    .promo-row-1 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr) 50px;
+        font-weight: bold;
+        padding-bottom: 5px;
+    }
+    .promo-row-2 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        font-size: 14px;
+        border-top: 1px solid #e0e0e0;
+        padding-top: 5px;
+    }
+
+    .delete-btn {
+        cursor: pointer;
+        color: #ff0000;
+        font-size: 20px;
+    }
+
+    /* ------------------- ปุ่มด้านล่าง (Bottom Menu) ------------------- */
     .bottom-menu {
         display: flex;
         justify-content: center;
@@ -107,18 +167,28 @@
         cursor: pointer;
         box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
         transition: 0.2s;
+        border: 2px solid transparent; /* เตรียมไว้สำหรับสถานะ active */
     }
 
-    .menu-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0px 6px 18px rgba(0,0,0,0.2);
+    .menu-btn.active {
+        background-color: #f0e6ff; /* สีพื้นหลังเมื่อ Active */
+        border: 2px solid #7e50c8; /* กรอบสีม่วงเมื่อ Active */
+        color: #7e50c8;
+        box-shadow: 0px 4px 15px rgba(126, 80, 200, 0.4);
+    }
+
+    /* ------------------- การจัดการหน้า (JavaScript Toggle) ------------------- */
+    .page-content {
+        display: none; /* ซ่อนทุกหน้าไว้ก่อน */
+    }
+    .page-content.active {
+        display: block; /* แสดงเฉพาะหน้าที่ active */
     }
 </style>
 
 </head>
 <body>
 
-    <!-- Navbar -->
     <div class="navbar">
         <a>Relax Cafe</a>
         <a>Menu</a>
@@ -126,78 +196,269 @@
         <a>Users</a>
         <a class="active">Discount</a>
     </div>
+    
+    <div class="content-container">
 
-    <!-- กล่องฟอร์ม -->
-    <div class="form-container">
-        <h2>เพิ่มโปรโมชั่น</h2>
-
-        <div class="form-grid">
-
-            <div class="form-group">
-                <label>Promotion_name</label>
-                <input type="text">
-            </div>
-
-            <div class="form-group">
-                <label>Menu_id</label>
-                <input type="text">
-            </div>
-
-            <div class="form-group">
-                <label>Description</label>
-                <input type="text">
-            </div>
-
-            <div class="form-group">
-                <label>Discount_percent</label>
-                <input type="number">
-            </div>
-
-            <div class="form-group">
-                <label>Start_date</label>
-                <input type="date">
-            </div>
-
-            <div class="form-group">
-                <label>Status</label>
-                <select>
-                    <option>Active</option>
-                    <option>Inactive</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>end_date</label>
-                <input type="date">
-            </div>
+        <div id="add-discount-page" class="page-content">
+            <h2>เพิ่มลดราคา</h2>
+            <form id="add-discount-form">
+                <div class="form-grid">
+                    <div class="form-group"><label>Discount_name</label><input type="text" id="add_d_name" required></div>
+                    <div class="form-group"><label>End_date</label><input type="date" id="add_d_end" required></div>
+                    <div class="form-group"><label>Discount_type</label>
+                        <select id="add_d_type" required>
+                            <option value="Percent">Percent (%)</option>
+                            <option value="Fixed">Fixed Amount (฿)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Status</label>
+                        <select id="add_d_status" required>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Discount_value</label><input type="number" id="add_d_value" required></div>
+                    <div class="form-group"></div> <div class="form-group"><label>Start_date</label><input type="date" id="add_d_start" required></div>
+                </div>
+                <button type="submit" class="submit-btn">เพิ่มลดราคา</button>
+            </form>
         </div>
 
-        <button class="submit-btn">เพิ่มลดราคา</button>
-    </div>
+        <div id="discount-list-page" class="page-content">
+            <h2>ลดราคา</h2>
+            <div class="list-header">
+                <span>Discount_id</span>
+                <span>Discount_name</span>
+                <span>Discount_type</span>
+                <span>Discount_value</span>
+                <span>Start_date</span>
+                <span>End_date</span>
+                <span>Status</span>
+                <span></span> </div>
+            <div id="discount-list-rows">
+                </div>
+        </div>
 
-    <!-- ปุ่มด้านล่าง -->
+        <div id="add-promotion-page" class="page-content active">
+            <h2>เพิ่มโปรโมชั่น</h2>
+            <form id="add-promotion-form">
+                <div class="form-grid">
+                    <div class="form-group"><label>Promotion_name</label><input type="text" id="add_p_name" required></div>
+                    <div class="form-group"><label>Menu_id</label><input type="text" id="add_p_menu_id" required></div>
+                    <div class="form-group"><label>Description</label><input type="text" id="add_p_desc" required></div>
+                    <div class="form-group"><label>Discount_percent</label><input type="number" id="add_p_percent"></div>
+                    <div class="form-group"><label>Start_date</label><input type="date" id="add_p_start" required></div>
+                    <div class="form-group"><label>Status</label>
+                        <select id="add_p_status" required>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>end_date</label><input type="date" id="add_p_end" required></div>
+                </div>
+                <button type="submit" class="submit-btn">เพิ่มลดราคา</button>
+            </form>
+        </div>
+
+        <div id="promotion-list-page" class="page-content">
+            <h2>โปรโมชัน</h2>
+            <div id="promotion-list-rows">
+                </div>
+        </div>
+
+    </div>
     <div class="bottom-menu">
-        <button class="menu-btn" onclick="goToAddDiscount()">เพิ่มลดราคา</button>
-        <button class="menu-btn" onclick="goToDiscountList()">ลดราคา</button>
-        <button class="menu-btn" onclick="goToPromotion()">โปรโมชัน</button>
+        <button class="menu-btn" id="btn-add-discount" onclick="showPage('add-discount-page', this)">เพิ่มลดราคา</button>
+        <button class="menu-btn" id="btn-discount-list" onclick="showPage('discount-list-page', this)">ลดราคา</button>
+        <button class="menu-btn active" id="btn-promotion-list" onclick="showPage('promotion-list-page', this)">โปรโมชัน</button>
+        <button class="menu-btn" id="btn-add-promotion" onclick="showPage('add-promotion-page', this)">เพิ่มโปรโมชัน</button>
     </div>
 
 
 <script>
-    function goToAddDiscount() {
-        alert("เปิดหน้า เพิ่มลดราคา");
-        // window.location.href = "add_discount.html";
+    // ----------------------------------------------------
+    // ข้อมูลจำลอง (Mock Data)
+    // ----------------------------------------------------
+    let discounts = [
+        { Discount_id: 'D001', Discount_name: 'ส่วนลดสมาชิก', Discount_type: 'Percent', Discount_value: 10, Start_date: '2025-11-01', End_date: '2025-12-31', Status: 'Active' },
+        { Discount_id: 'D002', Discount_name: 'ส่วนลดวันพุธ', Discount_type: 'Fixed', Discount_value: 20, Start_date: '2025-11-20', End_date: '2025-11-20', Status: 'Inactive' }
+    ];
+
+    let promotions = [
+        { Promotion_id: 'P001', Promotion_name: 'Happy Hour', Description: 'ลด 50% ทุกเมนู', Start_date: '2025-11-19', End_date: '2025-11-30', Menu_id: 'All', Discount_percent: 50, Status: 'Active' },
+        { Promotion_id: 'P002', Promotion_name: 'Buy 1 Get 1', Description: 'ซื้อกาแฟ แถมโดนัท', Start_date: '2025-12-01', End_date: '2025-12-07', Menu_id: 'M005', Discount_percent: 0, Status: 'Active' }
+    ];
+    
+    // ----------------------------------------------------
+    // ฟังก์ชันหลักในการสลับหน้า
+    // ----------------------------------------------------
+    function showPage(pageIdToShow, clickedButton) {
+        // 1. ซ่อนเนื้อหาของทุกหน้า
+        const pages = document.querySelectorAll('.page-content');
+        pages.forEach(page => {
+            page.classList.remove('active');
+        });
+
+        // 2. ลบสถานะ Active จากปุ่มทั้งหมด
+        const buttons = document.querySelectorAll('.menu-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // 3. แสดงหน้าที่ต้องการ
+        const pageToShow = document.getElementById(pageIdToShow);
+        if (pageToShow) {
+            pageToShow.classList.add('active');
+        }
+
+        // 4. ตั้งค่าสถานะ Active ให้กับปุ่มที่ถูกคลิก
+        if (clickedButton) {
+            clickedButton.classList.add('active');
+        }
+        
+        // 5. อัปเดตข้อมูลรายการเมื่อเปิดหน้ารายการ
+        if (pageIdToShow === 'discount-list-page') {
+            renderDiscountList();
+        } else if (pageIdToShow === 'promotion-list-page') {
+            renderPromotionList();
+        }
     }
 
-    function goToDiscountList() {
-        alert("เปิดหน้า รายการลดราคา");
-        // window.location.href = "discount_list.html";
+    // ----------------------------------------------------
+    // ฟังก์ชันจัดการรายการลดราคา (Discount List)
+    // ----------------------------------------------------
+    function renderDiscountList() {
+        const listArea = document.getElementById('discount-list-rows');
+        listArea.innerHTML = ''; 
+
+        discounts.forEach(d => {
+            const row = document.createElement('div');
+            row.className = 'list-row';
+            row.innerHTML = `
+                <span>${d.Discount_id}</span>
+                <span>${d.Discount_name}</span>
+                <span>${d.Discount_type}</span>
+                <span>${d.Discount_value}</span>
+                <span>${d.Start_date}</span>
+                <span>${d.End_date}</span>
+                <span>${d.Status}</span>
+                <span class="delete-btn" onclick="deleteDiscount('${d.Discount_id}')">❌</span>
+            `;
+            listArea.appendChild(row);
+        });
     }
 
-    function goToPromotion() {
-        alert("เปิดหน้า โปรโมชัน");
-        // window.location.href = "promotion.html";
+    function deleteDiscount(id) {
+        if (confirm(`คุณต้องการลบส่วนลด ID: ${id} นี้หรือไม่?`)) {
+            discounts = discounts.filter(d => d.Discount_id !== id);
+            renderDiscountList();
+        }
     }
+
+    // ----------------------------------------------------
+    // ฟังก์ชันจัดการรายการโปรโมชั่น (Promotion List)
+    // ----------------------------------------------------
+    function renderPromotionList() {
+        const listArea = document.getElementById('promotion-list-rows');
+        listArea.innerHTML = ''; 
+
+        promotions.forEach(p => {
+            const container = document.createElement('div');
+            container.className = 'list-row-promotion';
+            container.innerHTML = `
+                <div class="promo-row-1">
+                    <span>${p.Promotion_id}</span>
+                    <span>${p.Promotion_name}</span>
+                    <span>${p.Description}</span>
+                    <span>${p.Start_date}</span>
+                    <span>${p.End_date}</span>
+                    <span class="delete-btn" onclick="deletePromotion('${p.Promotion_id}')">❌</span>
+                </div>
+                <div class="promo-row-2">
+                    <span>Menu_id: ${p.Menu_id}</span>
+                    <span>Discount_percent: ${p.Discount_percent}%</span>
+                    <span>Status: ${p.Status}</span>
+                </div>
+            `;
+            listArea.appendChild(container);
+        });
+    }
+    
+    function deletePromotion(id) {
+        if (confirm(`คุณต้องการลบโปรโมชั่น ID: ${id} นี้หรือไม่?`)) {
+            promotions = promotions.filter(p => p.Promotion_id !== id);
+            renderPromotionList();
+        }
+    }
+
+
+    // ----------------------------------------------------
+    // ฟังก์ชันจัดการฟอร์ม (Form Submission)
+    // ----------------------------------------------------
+    
+    // เพิ่มลดราคา
+    document.getElementById('add-discount-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const newDiscount = {
+            Discount_id: 'D' + (discounts.length + 1).toString().padStart(3, '0'),
+            Discount_name: document.getElementById('add_d_name').value,
+            Discount_type: document.getElementById('add_d_type').value,
+            Discount_value: parseFloat(document.getElementById('add_d_value').value),
+            Start_date: document.getElementById('add_d_start').value,
+            End_date: document.getElementById('add_d_end').value,
+            Status: document.getElementById('add_d_status').value
+        };
+
+        discounts.push(newDiscount);
+        alert('เพิ่มส่วนลดเรียบร้อยแล้ว!');
+        this.reset();
+        
+        // สลับไปหน้า Discount List และแสดงรายการใหม่
+        showPage('discount-list-page', document.getElementById('btn-discount-list'));
+    });
+
+    // เพิ่มโปรโมชั่น
+    document.getElementById('add-promotion-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const newPromotion = {
+            Promotion_id: 'P' + (promotions.length + 1).toString().padStart(3, '0'),
+            Promotion_name: document.getElementById('add_p_name').value,
+            Menu_id: document.getElementById('add_p_menu_id').value,
+            Description: document.getElementById('add_p_desc').value,
+            Discount_percent: parseFloat(document.getElementById('add_p_percent').value || 0),
+            Start_date: document.getElementById('add_p_start').value,
+            End_date: document.getElementById('add_p_end').value,
+            Status: document.getElementById('add_p_status').value
+        };
+
+        promotions.push(newPromotion);
+        alert('เพิ่มโปรโมชั่นเรียบร้อยแล้ว!');
+        this.reset();
+        
+        // สลับไปหน้า Promotion List และแสดงรายการใหม่
+        showPage('promotion-list-page', document.getElementById('btn-promotion-list'));
+    });
+
+
+    // ----------------------------------------------------
+    // การเริ่มต้น (Initialization)
+    // ----------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+        // เริ่มต้นให้แสดงหน้าเพิ่มโปรโมชัน (ตามภาพต้นฉบับที่คุณส่งมา)
+        // หรือจะเปลี่ยนเป็น showPage('discount-list-page', document.getElementById('btn-discount-list')); ก็ได้
+        // showPage('add-promotion-page', document.getElementById('btn-add-promotion'));
+
+        // เนื่องจากใน HTML เรากำหนดให้ add-promotion-page มี class 'active' อยู่แล้ว และปุ่มด้านล่างก็ active อยู่
+        // เราเรียกให้ render ข้อมูลรายการไว้ก่อนเผื่อมีการสลับหน้าทันที
+        renderDiscountList();
+        renderPromotionList();
+        
+        // ถ้าต้องการให้เริ่มต้นที่หน้าใดหน้าหนึ่งอย่างชัดเจน
+        showPage('add-promotion-page', document.getElementById('btn-add-promotion'));
+    });
+
 </script>
 
 </body>
