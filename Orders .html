@@ -1,13 +1,230 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders</title>
-    <link rel="icon" type="image/x-icon" href="/image/icon.png">
-    <link rel="stylesheet" href="/css/order.css">
+    <title>จัดการคำสั่งซื้อ (Orders)</title>
+    <link rel="stylesheet" href="css/users.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS ส่วนเพิ่มเติมสำหรับหน้า Order --- */
+        
+        /* ป้ายสถานะ (Badge) */
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+        }
+        .st-pending { background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+        .st-preparing { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+        .st-completed { background-color: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
+        .st-cancelled { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; }
+
+        /* จัดการตัวอักษรในตาราง */
+        .text-amount { font-weight: bold; color: #2563eb; }
+        .text-date { font-size: 0.85rem; color: #666; }
+        .text-muted { font-size: 0.8rem; color: #888; }
+        
+        /* ปุ่มค้นหาและกรอง */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1;
+            max-width: 300px;
+            font-family: 'Sarabun', sans-serif;
+        }
+        .status-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Sarabun', sans-serif;
+        }
+    </style>
 </head>
 <body>
-    
+
+    <div class="container">
+        
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-left">
+                <h2>รายการคำสั่งซื้อ (Orders)</h2>
+                <p class="subtitle">ตรวจสอบรายการขายและสถานะจัดส่ง</p>
+            </div>
+            <div class="header-right">
+                <a href="index.html" class="btn btn-secondary">&larr; กลับหน้าหลัก</a>
+            </div>
+        </header>
+
+        <!-- Action Bar & Filters -->
+        <div class="action-bar" style="justify-content: space-between; align-items: center;">
+            
+            <!-- ปุ่มเพิ่มออเดอร์ใหม่ -->
+            <a href="Add_order.html" class="btn btn-primary">
+                + เปิดออเดอร์ใหม่
+            </a>
+
+            <!-- ส่วนค้นหาและกรอง -->
+            <div class="filter-bar" style="margin-bottom: 0;">
+                <input type="text" id="searchInput" class="search-input" placeholder="ค้นหา ID หรือ ชื่อลูกค้า..." onkeyup="filterData()">
+                
+                <select id="statusFilter" class="status-select" onchange="filterData()">
+                    <option value="">ทุกสถานะ</option>
+                    <option value="pending">รอตรวจสอบ</option>
+                    <option value="preparing">กำลังเตรียม</option>
+                    <option value="completed">เสร็จสิ้น</option>
+                    <option value="cancelled">ยกเลิก</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="8%">Order ID</th>
+                        <th width="15%">วัน-เวลา</th>
+                        <th width="20%">ลูกค้า</th>
+                        <th width="12%">ยอดสุทธิ</th>
+                        <th width="15%">ข้อมูลเพิ่มเติม</th>
+                        <th width="10%">สถานะ</th>
+                        <th width="20%">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="orderTableBody">
+                    <tr><td colspan="7" style="text-align:center; padding: 20px;">กำลังโหลดข้อมูล...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        let allOrders = []; // ตัวแปรเก็บข้อมูลดิบทั้งหมด เพื่อใช้ตอนค้นหาโดยไม่ต้องโหลด API ใหม่
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+        });
+
+        function loadOrders() {
+            fetch('api_get_orders.php')
+                .then(response => response.json())
+                .then(data => {
+                    allOrders = data; // เก็บลงตัวแปร Global
+                    renderTable(allOrders); // แสดงผล
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('orderTableBody').innerHTML = 
+                        '<tr><td colspan="7" style="text-align:center; color:red;">โหลดข้อมูลผิดพลาด</td></tr>';
+                });
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('orderTableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">ไม่พบข้อมูล</td></tr>';
+                return;
+            }
+
+            data.forEach(order => {
+                // 1. จัดการวันที่
+                const dateObj = new Date(order.Order_date);
+                const dateStr = dateObj.toLocaleDateString('th-TH', {
+                    day: '2-digit', month: 'short', year: '2-digit', 
+                    hour: '2-digit', minute: '2-digit'
+                });
+
+                // 2. ชื่อลูกค้า
+                let customerName = order.Full_Name || order.Username || `<span style="color:#999">User #${order.User_id}</span>`;
+
+                // 3. ข้อมูลเพิ่มเติม (Discount/Promo/Note)
+                let extras = [];
+                if (order.Discount_id) extras.push(`ส่วนลด ID: ${order.Discount_id}`);
+                if (order.Promotion_id) extras.push(`โปรโมชัน ID: ${order.Promotion_id}`);
+                if (order.Payment_id) extras.push(`ชำระเงิน ID: ${order.Payment_id}`);
+                
+                let extraHtml = extras.length > 0 ? extras.join('<br>') : '-';
+                if (order.Note) {
+                    extraHtml += `<br><span class="text-muted" style="font-style:italic;">"${order.Note}"</span>`;
+                }
+
+                // 4. สถานะ
+                let badgeClass = 'st-pending';
+                let statusText = order.Order_status;
+                
+                switch(order.Order_status) {
+                    case 'pending':   badgeClass = 'st-pending'; statusText='รอตรวจสอบ'; break;
+                    case 'preparing': badgeClass = 'st-preparing'; statusText='กำลังเตรียม'; break;
+                    case 'completed': badgeClass = 'st-completed'; statusText='สำเร็จ'; break;
+                    case 'cancelled': badgeClass = 'st-cancelled'; statusText='ยกเลิก'; break;
+                }
+
+                // 5. ยอดเงิน
+                let total = parseFloat(order.Total_amount).toLocaleString('th-TH', {minimumFractionDigits: 2});
+
+                const tr = `
+                    <tr>
+                        <td>#${order.Order_id}</td>
+                        <td class="text-date">${dateStr}</td>
+                        <td>${customerName}</td>
+                        <td class="text-amount">${total} ฿</td>
+                        <td style="font-size:0.85rem; line-height:1.4;">${extraHtml}</td>
+                        <td><span class="status-badge ${badgeClass}">${statusText}</span></td>
+                        <td>
+                            <button onclick="alert('ระบบดูรายละเอียดกำลังพัฒนา')" class="btn-edit" style="margin-bottom:4px;">รายละเอียด</button>
+                            <button onclick="deleteOrder(${order.Order_id})" class="btn-delete">ลบ</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += tr;
+            });
+        }
+
+        // ฟังก์ชันค้นหาและกรอง (ทำงานฝั่ง Client ไม่ต้องยิง API ใหม่)
+        function filterData() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = allOrders.filter(order => {
+                // ค้นหาจาก ชื่อ หรือ ID
+                const nameMatch = (order.Full_Name || '').toLowerCase().includes(searchText);
+                const userMatch = (order.Username || '').toLowerCase().includes(searchText);
+                const idMatch = order.Order_id.toString().includes(searchText);
+                const isSearchMatch = nameMatch || userMatch || idMatch;
+
+                // กรองตามสถานะ
+                const isStatusMatch = statusFilter === '' || order.Order_status === statusFilter;
+
+                return isSearchMatch && isStatusMatch;
+            });
+
+            renderTable(filtered);
+        }
+
+        function deleteOrder(id) {
+            if(confirm('คุณต้องการลบ Order #' + id + ' ใช่หรือไม่?')) {
+                // ส่งคำขอลบไปที่ API (ต้องสร้างไฟล์ลบแยกต่างหาก)
+                // window.location.href = 'delete_order.php?id=' + id;
+                alert('จำลองการลบ Order ID: ' + id);
+            }
+        }
+    </script>
+
 </body>
 </html>

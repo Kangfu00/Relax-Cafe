@@ -1,13 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>menu</title>
-    <link rel="icon" type="image/x-icon" href="/image/icon.png">
-    <link rel="stylesheet" href="/css/menu.css">
+    <title>ระบบจัดการเมนูอาหาร</title>
+    <link rel="stylesheet" href="css/users.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS เพิ่มเติม */
+        .menu-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
+        .status-available { background-color: #d1fae5; color: #065f46; }
+        .status-unavailable { background-color: #fee2e2; color: #991b1b; }
+        .price-text { font-weight: bold; color: #2563eb; }
+        .loading { text-align: center; padding: 20px; color: #666; }
+    </style>
 </head>
 <body>
-    
+
+    <div class="container">
+        
+        <header class="page-header">
+            <div class="header-left">
+                <h2>จัดการเมนูอาหาร/เครื่องดื่ม</h2>
+                <p class="subtitle">รายการสินค้าทั้งหมดในร้าน</p>
+            </div>
+            <div class="header-right">
+                <a href="index.html" class="btn btn-secondary">&larr; กลับหน้าหลัก</a>
+            </div>
+        </header>
+
+        <div class="action-bar">
+            <a href="Add_menu.html" class="btn btn-primary">+ เพิ่มเมนูใหม่</a>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="5%">ID</th>
+                        <th width="10%">รูปภาพ</th>
+                        <th width="15%">ชื่อเมนู</th>
+                        <th width="10%">หมวดหมู่</th>
+                        <th width="10%">ราคา</th>
+                        <th width="25%">รายละเอียด</th>
+                        <th width="10%">สถานะ</th>
+                        <th width="15%">จัดการ</th>
+                    </tr>
+                </thead>
+                <!-- ใส่ ID ให้ tbody เพื่ออ้างอิงใน JavaScript -->
+                <tbody id="menuTableBody">
+                    <tr><td colspan="8" class="loading">กำลังโหลดข้อมูล...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- ส่วน Script สำหรับดึงข้อมูล -->
+    <script>
+        // ทำงานเมื่อโหลดหน้าเว็บเสร็จ
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMenuData();
+        });
+
+        function loadMenuData() {
+            // เรียกไฟล์ PHP ผ่าน Fetch API
+            fetch('api_get_menu.php')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('menuTableBody');
+                    tableBody.innerHTML = ''; // ล้างข้อความ "กำลังโหลด..."
+
+                    if (data.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">ไม่พบข้อมูลเมนู</td></tr>';
+                        return;
+                    }
+
+                    // วนลูปข้อมูลที่ได้มาสร้าง HTML
+                    let htmlContent = '';
+                    data.forEach(menu => {
+                        
+                        // ตรวจสอบสถานะเพื่อเลือกสี
+                        let statusBadge = '';
+                        if (menu.Status === 'available') {
+                            statusBadge = '<span class="status-badge status-available">พร้อมขาย</span>';
+                        } else {
+                            statusBadge = '<span class="status-badge status-unavailable">หมด</span>';
+                        }
+
+                        // ตรวจสอบรูปภาพ
+                        let imageTag = menu.Image_url 
+                            ? `<img src="${menu.Image_url}" class="menu-img" alt="Menu">` 
+                            : '<span>ไม่มีรูป</span>';
+
+                        // จัดรูปแบบราคา (ใส่ลูกน้ำ)
+                        let priceFormatted = parseFloat(menu.Price).toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+                        // สร้างแถวตาราง
+                        htmlContent += `
+                            <tr>
+                                <td>${menu.Menu_id}</td>
+                                <td>${imageTag}</td>
+                                <td>${menu.Menu_name}</td>
+                                <td style="text-align:center;">${menu.Category_id}</td>
+                                <td class="price-text">${priceFormatted} ฿</td>
+                                <td>${menu.Description || '-'}</td>
+                                <td>${statusBadge}</td>
+                                <td>
+                                    <a href="edit_menu.html?id=${menu.Menu_id}" class="btn-edit">แก้ไข</a>
+                                    <a href="#" onclick="deleteMenu(${menu.Menu_id})" class="btn-delete">ลบ</a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    // เอา HTML ที่สร้างใส่เข้าไปในตาราง
+                    tableBody.innerHTML = htmlContent;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('menuTableBody').innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+                });
+        }
+
+        function deleteMenu(id) {
+            if(confirm('คุณต้องการลบเมนูนี้ใช่หรือไม่?')) {
+                // ส่งค่าไปหาไฟล์ PHP สำหรับลบ (ต้องสร้างไฟล์ delete_menu.php เพิ่ม)
+                window.location.href = `delete_menu.php?id=${id}`;
+            }
+        }
+    </script>
+
 </body>
 </html>
