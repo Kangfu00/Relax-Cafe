@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
 
-        $sql = "INSERT INTO Menu (Menu_name, Category_id, Price, Description, Image_url, Status) 
+        $sql = "INSERT INTO menu (menu_name, category_id, price, description, image_url, status) 
                 VALUES (:name, :cat, :price, :desc, :img, :status)";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // 3. ดึงข้อมูลเมนูทั้งหมด (GET)
 try {
     // เรียงตาม ID ล่าสุด
-    $stmt = $conn->query("SELECT * FROM Menu ORDER BY Menu_id DESC");
+    $stmt = $conn->query("SELECT * FROM menu ORDER BY menu_id DESC");
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($result);
 } catch (PDOException $e) {

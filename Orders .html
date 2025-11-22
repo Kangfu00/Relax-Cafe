@@ -222,20 +222,20 @@
 
             // Extras Info
             let extras = [];
-            if(o.Discount_id) extras.push(`Disc:${o.Discount_id}`);
-            if(o.Promotion_id) extras.push(`Promo:${o.Promotion_id}`);
+            if(o.discount_id) extras.push(`Disc:${o.discount_id}`);
+            if(o.promotion_id) extras.push(`Promo:${o.promotion_id}`);
             const extraStr = extras.length > 0 ? extras.join(', ') : '-';
 
             const row = document.createElement('div');
             row.className = 'list-row';
             row.innerHTML = `
-                <span>#${o.Order_id}</span>
+                <span>#${o.order_id}</span>
                 <span style="font-size:13px;">${dateStr}</span>
-                <span style="text-align:left; font-weight:500;">${o.Full_Name || o.Username || 'User:'+o.User_id}</span>
-                <span class="price-text">${parseFloat(o.Total_amount).toLocaleString()} ฿</span>
+                <span style="text-align:left; font-weight:500;">${o.full_name || o.username || 'User:'+o.user_id}</span>
+                <span class="price-text">${parseFloat(o.total_amount).toLocaleString()} ฿</span>
                 <span style="font-size:12px; color:#666;">${extraStr}</span>
-                <span><span class="status-badge ${badgeClass}">${o.Order_status}</span></span>
-                <span class="delete-btn" onclick="deleteOrder(${o.Order_id})">❌</span>
+                <span><span class="status-badge ${badgeClass}">${o.order_status}</span></span>
+                <span class="delete-btn" onclick="deleteOrder(${o.order_id})">❌</span>
             `;
             listArea.appendChild(row);
         });
@@ -247,10 +247,10 @@
         const st = document.getElementById('statusFilter').value;
 
         const filtered = allOrders.filter(o => {
-            const nameMatch = (o.Full_Name || '').toLowerCase().includes(txt) || 
-                              (o.Username || '').toLowerCase().includes(txt) ||
-                              o.Order_id.toString().includes(txt);
-            const statusMatch = st === '' || o.Order_status === st;
+            const nameMatch = (o.full_name || '').toLowerCase().includes(txt) || 
+                              (o.username || '').toLowerCase().includes(txt) ||
+                              o.order_id.toString().includes(txt);
+            const statusMatch = st === '' || o.order_status === st;
             return nameMatch && statusMatch;
         });
         renderTable(filtered);

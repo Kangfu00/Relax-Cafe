@@ -8,7 +8,7 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 // 1. ลบออเดอร์
 if ($action == 'delete' && isset($_GET['id'])) {
     try {
-        $stmt = $conn->prepare("DELETE FROM Orders WHERE Order_id = ?");
+        $stmt = $conn->prepare("DELETE FROM orders WHERE order_id = ?");
         $stmt->execute([$_GET['id']]);
         echo json_encode(['status' => 'success']);
     } catch (PDOException $e) {
@@ -20,7 +20,7 @@ if ($action == 'delete' && isset($_GET['id'])) {
 // 2. ดึงรายชื่อลูกค้า (สำหรับ Dropdown ในหน้าเพิ่มออเดอร์)
 if ($action == 'get_users') {
     try {
-        $stmt = $conn->query("SELECT User_id, Username, Full_Name FROM Users ORDER BY User_id ASC");
+        $stmt = $conn->query("SELECT user_id, username, full_Name FROM users ORDER BY user_id ASC");
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     } catch (PDOException $e) {
         echo json_encode([]);
@@ -32,7 +32,7 @@ if ($action == 'get_users') {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
     try {
-        $sql = "INSERT INTO Orders (User_id, Order_date, Total_amount, Discount_id, Promotion_id, Payment_id, Order_status, Note) 
+        $sql = "INSERT INTO orders (user_id, order_date, total_amount, discount_id, promotion_id, payment_id, order_status, note) 
                 VALUES (:uid, :odate, :total, :did, :pid, :payid, :status, :note)";
         $stmt = $conn->prepare($sql);
         
@@ -62,10 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // 4. ดึงรายการออเดอร์ทั้งหมด (GET ปกติ)
 try {
     // Join ตาราง Users เพื่อเอาชื่อลูกค้ามาแสดง
-    $sql = "SELECT o.*, u.Username, u.Full_Name 
-            FROM Orders o
-            LEFT JOIN Users u ON o.User_id = u.User_id
-            ORDER BY o.Order_date DESC";
+    $sql = "SELECT o.*, u.username, u.full_name 
+            FROM orders o
+            LEFT JOIN users u ON o.user_id = u.user_id
+            ORDER BY o.order_date DESC";
     $stmt = $conn->query($sql);
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 } catch (PDOException $e) {

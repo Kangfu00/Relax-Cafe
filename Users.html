@@ -187,15 +187,15 @@
 
                     const tr = `
                         <tr>
-                            <td>${user.User_id}</td>
-                            <td><strong>${user.Username}</strong></td>
+                            <td>${user.user_id}</td>
+                            <td><strong>${user.username}</strong></td>
                             <td>${user.Full_Name || '-'}</td>
-                            <td><span class="role-badge ${roleClass}">${user.Role}</span></td>
-                            <td>${user.Phone || '-'}</td>
-                            <td>${user.Email || '-'}</td>
-                            <td style="font-size:14px;">${user.Address || '-'}</td>
+                            <td><span class="role-badge ${roleClass}">${user.role}</span></td>
+                            <td>${user.phone || '-'}</td>
+                            <td>${user.email || '-'}</td>
+                            <td style="font-size:14px;">${user.address || '-'}</td>
                             <td>
-                                <button class="delete-btn" onclick="deleteUser(${user.User_id})">ลบ</button>
+                                <button class="delete-btn" onclick="deleteUser(${user.user_id})">ลบ</button>
                             </td>
                         </tr>
                     `;

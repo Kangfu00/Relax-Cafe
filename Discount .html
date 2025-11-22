@@ -156,14 +156,14 @@
                     const row = document.createElement('div');
                     row.className = 'list-row';
                     row.innerHTML = `
-                        <span>${d.Discount_id}</span>
-                        <span>${d.Discount_name}</span>
-                        <span>${d.Discount_type}</span>
-                        <span>${d.Discount_value}</span>
-                        <span>${d.Start_date}</span>
-                        <span>${d.End_date}</span>
-                        <span>${d.Status}</span>
-                        <span class="delete-btn" onclick="deleteDiscount(${d.Discount_id})">❌</span>
+                        <span>${d.discount_id}</span>
+                        <span>${d.discount_name}</span>
+                        <span>${d.discount_type}</span>
+                        <span>${d.discount_value}</span>
+                        <span>${d.start_date}</span>
+                        <span>${d.end_date}</span>
+                        <span>${d.status}</span>
+                        <span class="delete-btn" onclick="deleteDiscount(${d.discount_id})">❌</span>
                     `;
                     listArea.appendChild(row);
                 });
@@ -185,12 +185,12 @@
     document.getElementById('add-discount-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const data = {
-            Discount_name: document.getElementById('add_d_name').value,
-            Discount_type: document.getElementById('add_d_type').value,
-            Discount_value: document.getElementById('add_d_value').value,
-            Start_date: document.getElementById('add_d_start').value,
-            End_date: document.getElementById('add_d_end').value,
-            Status: document.getElementById('add_d_status').value
+            discount_name: document.getElementById('add_d_name').value,
+            discount_type: document.getElementById('add_d_type').value,
+            discount_value: document.getElementById('add_d_value').value,
+            start_date: document.getElementById('add_d_start').value,
+            end_date: document.getElementById('add_d_end').value,
+            status: document.getElementById('add_d_status').value
         };
 
         fetch('api_discount.php', {
@@ -230,17 +230,17 @@
                     div.className = 'list-row-promotion';
                     div.innerHTML = `
                         <div class="promo-row-1">
-                            <span>${p.Promotion_id}</span>
-                            <span>${p.Promotion_name}</span>
-                            <span>${p.Description || '-'}</span>
-                            <span>${p.Start_date}</span>
+                            <span>${p.promotion_id}</span>
+                            <span>${p.promotion_name}</span>
+                            <span>${p.pescription || '-'}</span>
+                            <span>${p.start_date}</span>
                             <span>${p.end_date}</span>
-                            <span class="delete-btn" onclick="deletePromotion(${p.Promotion_id})">❌</span>
+                            <span class="delete-btn" onclick="deletePromotion(${p.promotion_id})">❌</span>
                         </div>
                         <div class="promo-row-2">
-                            <span>Menu ID: ${p.Menu_id || 'All'}</span>
-                            <span>Discount: ${p.Discount_percent}%</span>
-                            <span>Status: ${p.Status}</span>
+                            <span>Menu ID: ${p.menu_id || 'All'}</span>
+                            <span>Discount: ${p.discount_percent}%</span>
+                            <span>Status: ${p.status}</span>
                         </div>
                     `;
                     listArea.appendChild(div);
@@ -263,13 +263,13 @@
     document.getElementById('add-promotion-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const data = {
-            Promotion_name: document.getElementById('add_p_name').value,
-            Menu_id: document.getElementById('add_p_menu_id').value,
-            Description: document.getElementById('add_p_desc').value,
-            Discount_percent: document.getElementById('add_p_percent').value,
-            Start_date: document.getElementById('add_p_start').value,
+            promotion_name: document.getElementById('add_p_name').value,
+            menu_id: document.getElementById('add_p_menu_id').value,
+            description: document.getElementById('add_p_desc').value,
+            discount_percent: document.getElementById('add_p_percent').value,
+            start_date: document.getElementById('add_p_start').value,
             end_date: document.getElementById('add_p_end').value,
-            Status: document.getElementById('add_p_status').value
+            status: document.getElementById('add_p_status').value
         };
 
         fetch('api_promotion.php', {

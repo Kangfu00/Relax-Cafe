@@ -179,11 +179,11 @@
                     row.innerHTML = `
                         <span>${menu.Menu_id}</span>
                         <div>${imgTag}</div>
-                        <span style="text-align:left; font-weight:500;">${menu.Menu_name}</span>
+                        <span style="text-align:left; font-weight:500;">${menu.menu_name}</span>
                         <span>ID: ${menu.Category_id}</span>
-                        <span style="font-weight:bold; color:#2563eb;">${parseFloat(menu.Price).toFixed(0)} ฿</span>
+                        <span style="font-weight:bold; color:#2563eb;">${parseFloat(menu.price).toFixed(0)} ฿</span>
                         <span class="${statusClass}">${statusText}</span>
-                        <span class="delete-btn" onclick="deleteMenu(${menu.Menu_id})">❌</span>
+                        <span class="delete-btn" onclick="deleteMenu(${menu.menu_id})">❌</span>
                     `;
                     listArea.appendChild(row);
                 });

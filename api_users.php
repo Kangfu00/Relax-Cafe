@@ -8,7 +8,7 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 // 1. ลบผู้ใช้งาน
 if ($action == 'delete' && isset($_GET['id'])) {
     try {
-        $stmt = $conn->prepare("DELETE FROM Users WHERE User_id = ?");
+        $stmt = $conn->prepare("DELETE FROM users WHERE user_id = ?");
         $stmt->execute([$_GET['id']]);
         echo json_encode(['status' => 'success']);
     } catch (PDOException $e) {
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // เข้ารหัส Password ก่อนบันทึก (เพื่อความปลอดภัย)
         $hashed_password = password_hash($data['password'], PASSWORD_DEFAULT);
 
-        $sql = "INSERT INTO Users (Username, Password, Full_Name, Role, Phone, Email, Address) 
+        $sql = "INSERT INTO users (username, Password, full_name, role, phone, email, address) 
                 VALUES (:usr, :pwd, :fname, :role, :phone, :email, :addr)";
         
         $stmt = $conn->prepare($sql);
@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // 3. ดึงข้อมูลผู้ใช้งานทั้งหมด (GET)
 try {
-    $stmt = $conn->query("SELECT * FROM Users ORDER BY User_id DESC");
+    $stmt = $conn->query("SELECT * FROM users ORDER BY user_id DESC");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // ลบ field password ออกก่อนส่งกลับไปหน้าเว็บ เพื่อความปลอดภัย

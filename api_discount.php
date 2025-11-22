@@ -9,7 +9,7 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 // --- 1. ลบข้อมูล (Delete) ---
 if ($action == 'delete' && isset($_GET['id'])) {
     try {
-        $stmt = $conn->prepare("DELETE FROM Discounts WHERE Discount_id = ?");
+        $stmt = $conn->prepare("DELETE FROM discounts WHERE discount_id = ?");
         $stmt->execute([$_GET['id']]);
         echo json_encode(['status' => 'success']);
     } catch (PDOException $e) {
@@ -24,17 +24,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
 
     try {
-        $sql = "INSERT INTO Discounts (Discount_name, Discount_type, Discount_value, Start_date, End_date, Status) 
+        $sql = "INSERT INTO discounts (discount_name, discount_type, discount_value, start_date, end_date, status) 
                 VALUES (:name, :type, :val, :start, :end, :status)";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
-            ':name'   => $data['Discount_name'],
-            ':type'   => $data['Discount_type'],
-            ':val'    => $data['Discount_value'],
-            ':start'  => $data['Start_date'],
-            ':end'    => $data['End_date'],
-            ':status' => $data['Status']
+            ':name'   => $data['discount_name'],
+            ':type'   => $data['discount_type'],
+            ':val'    => $data['discount_value'],
+            ':start'  => $data['start_date'],
+            ':end'    => $data['end_date'],
+            ':status' => $data['status']
         ]);
 
         echo json_encode(['status' => 'success']);
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // --- 3. ดึงข้อมูลทั้งหมด (List - GET) ---
 try {
-    $stmt = $conn->query("SELECT * FROM Discounts ORDER BY Discount_id DESC");
+    $stmt = $conn->query("SELECT * FROM discounts ORDER BY discount_id DESC");
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($result);
 } catch (PDOException $e) {
