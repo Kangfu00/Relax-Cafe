@@ -1,58 +1,255 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการผู้ใช้งาน</title>
-    <link rel="stylesheet" href="css/users.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relax Cafe - Users Management</title>
+<style>
+    /* --- Relax Cafe Theme Styles --- */
+    body { font-family: "Sarabun", sans-serif; background-color: #d8bc9b; margin: 0; padding: 0; }
+    
+    /* Navbar */
+    .navbar { display: flex; justify-content: center; gap: 70px; padding: 20px 0; font-size: 22px; font-weight: bold; }
+    .navbar a { color: #5d5d5d; text-decoration: none; transition: color 0.2s; }
+    .navbar .active { color: #7e50c8; border-bottom: 3px solid #7e50c8; padding-bottom: 5px; }
+    
+    /* Container */
+    .content-container { background: #fdfae9; width: 90%; margin: 20px auto 0; border-radius: 6px; padding: 40px; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); min-height: 600px; }
+    
+    h2 { text-align: center; margin-top: 0; font-size: 28px; color: #5d5d5d; }
+    .subtitle { text-align: center; color: #777; margin-top: -15px; margin-bottom: 30px; }
+
+    /* Form Styles */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; }
+    .form-group { display: flex; flex-direction: column; }
+    .full-width { grid-column: 1 / -1; }
+    
+    label { margin-bottom: 6px; font-weight: 600; color: #5d5d5d; }
+    .required { color: red; }
+    
+    input, select, textarea { padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: #f1f1e9; font-size: 16px; font-family: 'Sarabun'; }
+    textarea { resize: vertical; height: 80px; }
+
+    .submit-btn { background-color: #69c84c; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; margin-top: 25px; display: block; margin-left: auto; width: 100%; }
+    .submit-btn:hover { background-color: #58a83e; }
+
+    /* Table Styles */
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background-color: #f1f1e9; padding: 12px; text-align: left; border-bottom: 2px solid #ccc; font-weight: bold; color: #333; white-space: nowrap; }
+    td { padding: 12px; border-bottom: 1px solid #eee; color: #444; vertical-align: middle; }
+    
+    /* Role Badges */
+    .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+    .role-admin { background: #fee2e2; color: #991b1b; }
+    .role-manager { background: #fff7ed; color: #c2410c; }
+    .role-user { background: #f0fdf4; color: #166534; }
+
+    .delete-btn { cursor: pointer; color: #ff4d4d; font-weight: bold; border: none; background: none; font-size: 16px; }
+    .delete-btn:hover { text-decoration: underline; }
+
+    /* Bottom Menu (Tabs) */
+    .bottom-menu { display: flex; justify-content: center; gap: 40px; margin: 40px 0; }
+    .menu-btn { background-color: white; border: none; padding: 18px 40px; border-radius: 45px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); transition: 0.2s; border: 2px solid transparent; }
+    .menu-btn.active { background-color: #f0e6ff; border: 2px solid #7e50c8; color: #7e50c8; box-shadow: 0px 4px 15px rgba(126, 80, 200, 0.4); }
+
+    .page-content { display: none; }
+    .page-content.active { display: block; }
+</style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <header class="page-header">
-            <div class="header-left">
-                <h2>จัดการข้อมูลผู้ใช้งาน</h2>
-                <p class="subtitle">รายชื่อสมาชิกทั้งหมดในระบบ</p>
-            </div>
-            <div class="header-right">
-                <a href="home.html" class="btn btn-secondary">
-                    &larr; กลับหน้าหลัก
-                </a>
-            </div>
-        </header>
+    <div class="navbar">
+        <a href="index.html">Relax Cafe</a>
+        <a href="menu.html">Menu</a>
+        <a href="Orders .html">Orders</a>
+        <a class="active">Users</a>
+        <a href="Discount .html">Discount</a>
+    </div>
+    
+    <div class="content-container">
 
-        <div class="action-bar">
-            <a href="Add_user.html" class="btn btn-primary">
-                + เพิ่มผู้ใช้งานใหม่
-            </a>
+        <!-- 1. หน้ารายชื่อผู้ใช้งาน (List) -->
+        <div id="user-list-page" class="page-content active">
+            <h2>จัดการข้อมูลผู้ใช้งาน</h2>
+            <p class="subtitle">รายชื่อสมาชิกและพนักงานทั้งหมดในระบบ</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Role</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- Data render via JS -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Password</th>
-                        <th>Full Name</th>
-                        <th>Role</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th>Address</th>
-                        <th>Created At</th>
-                        <th>Action</th> </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        
-                    </tr>
-                </tbody>
-            </table>
+        <!-- 2. หน้าเพิ่มผู้ใช้งาน (Add Form) -->
+        <div id="add-user-page" class="page-content">
+            <h2>เพิ่มผู้ใช้งานใหม่ (Add User)</h2>
+            <p class="subtitle">กรอกข้อมูลเพื่อสร้างบัญชีสมาชิกใหม่</p>
+            
+            <form id="addUserForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Username <span class="required">*</span></label>
+                        <input type="text" name="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password <span class="required">*</span></label>
+                        <input type="password" name="password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="fullname">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Role <span class="required">*</span></label>
+                        <select name="role">
+                            <option value="User">User</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" name="phone">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Address</label>
+                        <textarea name="address"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">บันทึกข้อมูล</button>
+            </form>
         </div>
 
     </div>
+
+    <!-- ปุ่มสลับหน้าด้านล่าง -->
+    <div class="bottom-menu">
+        <button class="menu-btn active" id="btn-list" onclick="showPage('user-list-page', this)">รายชื่อผู้ใช้งาน</button>
+        <button class="menu-btn" id="btn-add" onclick="showPage('add-user-page', this)">+ เพิ่มผู้ใช้งาน</button>
+    </div>
+
+<script>
+    // สลับหน้า Tab
+    function showPage(pageId, btn) {
+        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(pageId).classList.add('active');
+        if(btn) btn.classList.add('active');
+
+        if(pageId === 'user-list-page') loadUsers();
+    }
+
+    // โหลดข้อมูลผู้ใช้งาน
+    function loadUsers() {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">กำลังโหลด...</td></tr>';
+
+        fetch('api_users.php')
+            .then(res => res.json())
+            .then(data => {
+                tbody.innerHTML = '';
+                if(data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">ไม่พบผู้ใช้งาน</td></tr>';
+                    return;
+                }
+
+                data.forEach(user => {
+                    // เลือกสี Badge ตาม Role
+                    let roleClass = 'role-user';
+                    if(user.Role === 'Admin') roleClass = 'role-admin';
+                    if(user.Role === 'Manager') roleClass = 'role-manager';
+
+                    const tr = `
+                        <tr>
+                            <td>${user.user_id}</td>
+                            <td><strong>${user.username}</strong></td>
+                            <td>${user.Full_Name || '-'}</td>
+                            <td><span class="role-badge ${roleClass}">${user.role}</span></td>
+                            <td>${user.phone || '-'}</td>
+                            <td>${user.email || '-'}</td>
+                            <td style="font-size:14px;">${user.address || '-'}</td>
+                            <td>
+                                <button class="delete-btn" onclick="deleteUser(${user.user_id})">ลบ</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += tr;
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:red;">เกิดข้อผิดพลาด</td></tr>';
+            });
+    }
+
+    // บันทึกผู้ใช้งานใหม่
+    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // แปลง FormData เป็น Object JSON
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        fetch('api_users.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(result => {
+            if(result.status === 'success') {
+                alert('เพิ่มผู้ใช้งานเรียบร้อย!');
+                this.reset();
+                showPage('user-list-page', document.getElementById('btn-list'));
+            } else {
+                alert('Error: ' + result.message);
+            }
+        })
+        .catch(err => console.error(err));
+    });
+
+    // ลบผู้ใช้งาน
+    function deleteUser(id) {
+        if(confirm('ยืนยันการลบผู้ใช้งาน ID: ' + id + '?')) {
+            fetch(`api_users.php?action=delete&id=${id}`)
+                .then(res => res.json())
+                .then(result => {
+                    if(result.status === 'success') loadUsers();
+                    else alert('ลบไม่สำเร็จ');
+                });
+        }
+    }
+
+    // เริ่มต้น
+    document.addEventListener('DOMContentLoaded', loadUsers);
+
+</script>
 
 </body>
 </html>

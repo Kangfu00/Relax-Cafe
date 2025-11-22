@@ -5,3 +5,10 @@ body {
     margin: 0;
     padding: 0;
 }
+
+.menu-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+.status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
+.status-available { background-color: #d1fae5; color: #065f46; }
+.status-unavailable { background-color: #fee2e2; color: #991b1b; }
+.price-text { font-weight: bold; color: #2563eb; }
+.loading { text-align: center; padding: 20px; color: #666; }

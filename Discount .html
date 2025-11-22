@@ -2,91 +2,298 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Relax Cafe - Discount</title>
-<link rel="stylesheet" href="/css/discount.css">
+<title>Relax Cafe - Discount & Promotion</title>
+<style>
+    /* --- CSS เหมือนเดิม --- */
+    body { font-family: "Prompt", sans-serif; background-color: #d8bc9b; margin: 0; padding: 0; }
+    .navbar { display: flex; justify-content: center; gap: 70px; padding: 20px 0; font-size: 22px; font-weight: bold; }
+    .navbar a { color: #5d5d5d; text-decoration: none; transition: color 0.2s; }
+    .navbar .active { color: #7e50c8; border-bottom: 3px solid #7e50c8; padding-bottom: 5px; }
+    .content-container { background: #fdfae9; width: 90%; margin: 20px auto 0; border-radius: 6px; padding: 40px; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+    h2 { text-align: center; margin-top: 0; font-size: 28px; color: #5d5d5d; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; }
+    .form-group { display: flex; flex-direction: column; }
+    label { margin-bottom: 6px; font-weight: 600; color: #5d5d5d; }
+    input, select { padding: 10px; border-radius: 6px; border: none; background: #f1f1e9; font-size: 16px; }
+    .submit-btn { background-color: #69c84c; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; margin-top: 25px; display: block; margin-left: auto; }
+    .submit-btn:hover { background-color: #58a83e; }
+    .list-header, .list-row { display: grid; grid-template-columns: repeat(7, 1fr) 50px; gap: 10px; padding: 12px 0; text-align: center; font-size: 16px; }
+    .list-header { font-weight: bold; background-color: #f1f1e9; margin-top: 20px; border-radius: 6px; border-bottom: 2px solid #ccc; }
+    .list-row { background-color: #f1f1e9; margin-top: 10px; border-radius: 6px; align-items: center; }
+    .list-row-promotion { display: grid; grid-template-rows: auto auto; padding: 15px; background-color: #f1f1e9; margin-top: 10px; border-radius: 6px; }
+    .promo-row-1 { display: grid; grid-template-columns: repeat(5, 1fr) 50px; font-weight: bold; padding-bottom: 5px; }
+    .promo-row-2 { display: grid; grid-template-columns: repeat(3, 1fr); font-size: 14px; border-top: 1px solid #e0e0e0; padding-top: 5px; }
+    .delete-btn { cursor: pointer; color: #ff0000; font-size: 20px; }
+    .bottom-menu { display: flex; justify-content: center; gap: 40px; margin: 40px 0; }
+    .menu-btn { background-color: white; border: none; padding: 18px 40px; border-radius: 45px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); transition: 0.2s; border: 2px solid transparent; }
+    .menu-btn.active { background-color: #f0e6ff; border: 2px solid #7e50c8; color: #7e50c8; box-shadow: 0px 4px 15px rgba(126, 80, 200, 0.4); }
+    .page-content { display: none; }
+    .page-content.active { display: block; }
+</style>
 </head>
 <body>
 
-    <!-- Navbar -->
     <div class="navbar">
-        <a>Relax Cafe</a>
-        <a>Menu</a>
-        <a>Orders</a>
-        <a>Users</a>
+        <a href="index.html">Relax Cafe</a>
+        <a href="menu.html">Menu</a>
+        <a href="Orders .html">Orders</a>
+        <a href="Users.html">Users</a>
         <a class="active">Discount</a>
     </div>
+    
+    <div class="content-container">
 
-    <!-- กล่องฟอร์ม -->
-    <div class="form-container">
-        <h2>เพิ่มโปรโมชั่น</h2>
-
-        <div class="form-grid">
-
-            <div class="form-group">
-                <label>Promotion_name</label>
-                <input type="text">
-            </div>
-
-            <div class="form-group">
-                <label>Menu_id</label>
-                <input type="text">
-            </div>
-
-            <div class="form-group">
-                <label>Description</label>
-                <input type="text">
-            </div>
-
-            <div class="form-group">
-                <label>Discount_percent</label>
-                <input type="number">
-            </div>
-
-            <div class="form-group">
-                <label>Start_date</label>
-                <input type="date">
-            </div>
-
-            <div class="form-group">
-                <label>Status</label>
-                <select>
-                    <option>Active</option>
-                    <option>Inactive</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>end_date</label>
-                <input type="date">
-            </div>
+        <!-- หน้าเพิ่ม Discount -->
+        <div id="add-discount-page" class="page-content">
+            <h2>เพิ่มลดราคา (Discount)</h2>
+            <form id="add-discount-form">
+                <div class="form-grid">
+                    <div class="form-group"><label>Discount Name</label><input type="text" id="add_d_name" required></div>
+                    <div class="form-group"><label>End Date</label><input type="date" id="add_d_end" required></div>
+                    <div class="form-group"><label>Discount Type</label>
+                        <select id="add_d_type" required>
+                            <!-- value ต้องเป็นตัวพิมพ์เล็กตาม ENUM ใน DB -->
+                            <option value="percent">Percent (%)</option>
+                            <option value="amount">Fixed Amount (฿)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Status</label>
+                        <select id="add_d_status" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Discount Value</label><input type="number" id="add_d_value" step="0.01" required></div>
+                    <div class="form-group"><label>Start Date</label><input type="date" id="add_d_start" required></div>
+                </div>
+                <button type="submit" class="submit-btn">บันทึกส่วนลด</button>
+            </form>
         </div>
 
-        <button class="submit-btn">เพิ่มลดราคา</button>
+        <!-- หน้ารายการ Discount -->
+        <div id="discount-list-page" class="page-content">
+            <h2>รายการส่วนลด</h2>
+            <div class="list-header">
+                <span>ID</span>
+                <span>Name</span>
+                <span>Type</span>
+                <span>Value</span>
+                <span>Start</span>
+                <span>End</span>
+                <span>Status</span>
+                <span>ลบ</span> 
+            </div>
+            <div id="discount-list-rows"></div>
+        </div>
+
+        <!-- หน้าเพิ่ม Promotion -->
+        <div id="add-promotion-page" class="page-content active">
+            <h2>เพิ่มโปรโมชัน (Promotion)</h2>
+            <form id="add-promotion-form">
+                <div class="form-grid">
+                    <div class="form-group"><label>Promotion Name</label><input type="text" id="add_p_name" required></div>
+                    <div class="form-group"><label>Menu ID (Optional)</label><input type="number" id="add_p_menu_id" placeholder="ใส่เลข ID เมนู"></div>
+                    <div class="form-group"><label>Description</label><input type="text" id="add_p_desc"></div>
+                    <div class="form-group"><label>Discount Percent</label><input type="number" id="add_p_percent" step="0.01"></div>
+                    <div class="form-group"><label>Start Date</label><input type="date" id="add_p_start" required></div>
+                    <div class="form-group"><label>Status</label>
+                        <select id="add_p_status" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>End Date</label><input type="date" id="add_p_end" required></div>
+                </div>
+                <button type="submit" class="submit-btn">บันทึกโปรโมชัน</button>
+            </form>
+        </div>
+
+        <!-- หน้ารายการ Promotion -->
+        <div id="promotion-list-page" class="page-content">
+            <h2>รายการโปรโมชัน</h2>
+            <div id="promotion-list-rows"></div>
+        </div>
+
     </div>
 
-    <!-- ปุ่มด้านล่าง -->
     <div class="bottom-menu">
-        <button class="menu-btn" onclick="goToAddDiscount()">เพิ่มลดราคา</button>
-        <button class="menu-btn" onclick="goToDiscountList()">ลดราคา</button>
-        <button class="menu-btn" onclick="goToPromotion()">โปรโมชัน</button>
+        <button class="menu-btn" id="btn-add-discount" onclick="showPage('add-discount-page', this)">เพิ่มลดราคา</button>
+        <button class="menu-btn" id="btn-discount-list" onclick="showPage('discount-list-page', this)">ดูรายการลดราคา</button>
+        <button class="menu-btn active" id="btn-promotion-list" onclick="showPage('promotion-list-page', this)">ดูโปรโมชัน</button>
+        <button class="menu-btn" id="btn-add-promotion" onclick="showPage('add-promotion-page', this)">เพิ่มโปรโมชัน</button>
     </div>
 
 
 <script>
-    function goToAddDiscount() {
-        alert("เปิดหน้า เพิ่มลดราคา");
-        // window.location.href = "add_discount.html";
+    // ฟังก์ชันสลับหน้า
+    function showPage(pageIdToShow, clickedButton) {
+        document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById(pageIdToShow).classList.add('active');
+        if (clickedButton) clickedButton.classList.add('active');
+
+        if (pageIdToShow === 'discount-list-page') loadDiscounts();
+        if (pageIdToShow === 'promotion-list-page') loadPromotions();
     }
 
-    function goToDiscountList() {
-        alert("เปิดหน้า รายการลดราคา");
-        // window.location.href = "discount_list.html";
+    // -----------------------------------
+    // จัดการ DISCOUNT
+    // -----------------------------------
+    function loadDiscounts() {
+        const listArea = document.getElementById('discount-list-rows');
+        listArea.innerHTML = '<p style="text-align:center;">กำลังโหลด...</p>';
+
+        fetch('api_discount.php')
+            .then(res => res.json())
+            .then(data => {
+                listArea.innerHTML = '';
+                if(data.length === 0) {
+                    listArea.innerHTML = '<p style="text-align:center;">ไม่พบข้อมูล</p>';
+                    return;
+                }
+                data.forEach(d => {
+                    const row = document.createElement('div');
+                    row.className = 'list-row';
+                    row.innerHTML = `
+                        <span>${d.discount_id}</span>
+                        <span>${d.discount_name}</span>
+                        <span>${d.discount_type}</span>
+                        <span>${d.discount_value}</span>
+                        <span>${d.start_date}</span>
+                        <span>${d.end_date}</span>
+                        <span>${d.status}</span>
+                        <span class="delete-btn" onclick="deleteDiscount(${d.discount_id})">❌</span>
+                    `;
+                    listArea.appendChild(row);
+                });
+            })
+            .catch(err => console.error(err));
     }
 
-    function goToPromotion() {
-        alert("เปิดหน้า โปรโมชัน");
-        // window.location.href = "promotion.html";
+    function deleteDiscount(id) {
+        if(confirm('ยืนยันการลบส่วนลดนี้?')) {
+            fetch(`api_discount.php?action=delete&id=${id}`)
+                .then(res => res.json())
+                .then(result => {
+                    if(result.status === 'success') loadDiscounts();
+                    else alert('ลบไม่สำเร็จ: ' + result.message);
+                });
+        }
     }
+
+    document.getElementById('add-discount-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = {
+            discount_name: document.getElementById('add_d_name').value,
+            discount_type: document.getElementById('add_d_type').value,
+            discount_value: document.getElementById('add_d_value').value,
+            start_date: document.getElementById('add_d_start').value,
+            end_date: document.getElementById('add_d_end').value,
+            status: document.getElementById('add_d_status').value
+        };
+
+        fetch('api_discount.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(result => {
+            if(result.status === 'success') {
+                alert('เพิ่มส่วนลดสำเร็จ!');
+                this.reset();
+                showPage('discount-list-page', document.getElementById('btn-discount-list'));
+            } else {
+                alert('เกิดข้อผิดพลาด: ' + result.message);
+            }
+        });
+    });
+
+    // -----------------------------------
+    // จัดการ PROMOTION
+    // -----------------------------------
+    function loadPromotions() {
+        const listArea = document.getElementById('promotion-list-rows');
+        listArea.innerHTML = '<p style="text-align:center;">กำลังโหลด...</p>';
+
+        fetch('api_promotion.php')
+            .then(res => res.json())
+            .then(data => {
+                listArea.innerHTML = '';
+                if(data.length === 0) {
+                    listArea.innerHTML = '<p style="text-align:center;">ไม่พบข้อมูล</p>';
+                    return;
+                }
+                data.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'list-row-promotion';
+                    div.innerHTML = `
+                        <div class="promo-row-1">
+                            <span>${p.promotion_id}</span>
+                            <span>${p.promotion_name}</span>
+                            <span>${p.pescription || '-'}</span>
+                            <span>${p.start_date}</span>
+                            <span>${p.end_date}</span>
+                            <span class="delete-btn" onclick="deletePromotion(${p.promotion_id})">❌</span>
+                        </div>
+                        <div class="promo-row-2">
+                            <span>Menu ID: ${p.menu_id || 'All'}</span>
+                            <span>Discount: ${p.discount_percent}%</span>
+                            <span>Status: ${p.status}</span>
+                        </div>
+                    `;
+                    listArea.appendChild(div);
+                });
+            })
+            .catch(err => console.error(err));
+    }
+
+    function deletePromotion(id) {
+        if(confirm('ยืนยันการลบโปรโมชั่นนี้?')) {
+            fetch(`api_promotion.php?action=delete&id=${id}`)
+                .then(res => res.json())
+                .then(result => {
+                    if(result.status === 'success') loadPromotions();
+                    else alert('ลบไม่สำเร็จ: ' + result.message);
+                });
+        }
+    }
+
+    document.getElementById('add-promotion-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = {
+            promotion_name: document.getElementById('add_p_name').value,
+            menu_id: document.getElementById('add_p_menu_id').value,
+            description: document.getElementById('add_p_desc').value,
+            discount_percent: document.getElementById('add_p_percent').value,
+            start_date: document.getElementById('add_p_start').value,
+            end_date: document.getElementById('add_p_end').value,
+            status: document.getElementById('add_p_status').value
+        };
+
+        fetch('api_promotion.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(result => {
+            if(result.status === 'success') {
+                alert('เพิ่มโปรโมชั่นสำเร็จ!');
+                this.reset();
+                showPage('promotion-list-page', document.getElementById('btn-promotion-list'));
+            } else {
+                alert('เกิดข้อผิดพลาด: ' + result.message);
+            }
+        });
+    });
+
+    // เริ่มต้น
+    document.addEventListener('DOMContentLoaded', () => {
+        loadPromotions(); // โหลดหน้าแรกที่ active
+    });
+
 </script>
 
 </body>
