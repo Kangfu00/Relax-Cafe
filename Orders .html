@@ -62,7 +62,7 @@
         <a href="index.html">Relax Cafe</a>
         <a href="menu.html">Menu</a>
         <a class="active">Orders</a>
-        <a href="users.html">Users</a>
+        <a href="Users.html">Users</a>
         <a href="Discount .html">Discount</a>
     </div>
     
@@ -178,8 +178,8 @@
                 const select = document.getElementById('user_select');
                 select.innerHTML = '<option value="">-- เลือกลูกค้า --</option>';
                 data.forEach(u => {
-                    const name = u.Full_Name ? u.Full_Name : u.Username;
-                    select.innerHTML += `<option value="${u.User_id}">[${u.User_id}] ${name}</option>`;
+                    const name = u.full_Name ? u.full_Name : u.username;
+                    select.innerHTML += `<option value="${u.user_id}">[${u.user_id}] ${name}</option>`;
                 });
             });
     }

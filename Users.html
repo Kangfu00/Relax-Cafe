@@ -6,7 +6,7 @@
 <title>Relax Cafe - Users Management</title>
 <style>
     /* --- Relax Cafe Theme Styles --- */
-    body { font-family: "Sarabun", sans-serif; background-color: #d8bc9b; margin: 0; padding: 0; }
+    body { font-family: "Prompt", sans-serif; background-color: #d8bc9b; margin: 0; padding: 0; }
     
     /* Navbar */
     .navbar { display: flex; justify-content: center; gap: 70px; padding: 20px 0; font-size: 22px; font-weight: bold; }
@@ -27,7 +27,7 @@
     label { margin-bottom: 6px; font-weight: 600; color: #5d5d5d; }
     .required { color: red; }
     
-    input, select, textarea { padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: #f1f1e9; font-size: 16px; font-family: 'Sarabun'; }
+    input, select, textarea { padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: #f1f1e9; font-size: 16px; }
     textarea { resize: vertical; height: 80px; }
 
     .submit-btn { background-color: #69c84c; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; margin-top: 25px; display: block; margin-left: auto; width: 100%; }
@@ -40,10 +40,11 @@
     td { padding: 12px; border-bottom: 1px solid #eee; color: #444; vertical-align: middle; }
     
     /* Role Badges */
-    .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+    .role-badge { padding: 4px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; text-transform: capitalize; }
     .role-admin { background: #fee2e2; color: #991b1b; }
+    .role-staff { background: #fff7ed; color: #c2410c; } /* เปลี่ยนจาก Manager เป็น Staff ตาม DB หรือเปล่า? ถ้า DB เป็น 'staff' ให้แก้ตรงนี้ */
     .role-manager { background: #fff7ed; color: #c2410c; }
-    .role-user { background: #f0fdf4; color: #166534; }
+    .role-user, .role-customer { background: #f0fdf4; color: #166534; }
 
     .delete-btn { cursor: pointer; color: #ff4d4d; font-weight: bold; border: none; background: none; font-size: 16px; }
     .delete-btn:hover { text-decoration: underline; }
@@ -62,9 +63,9 @@
     <div class="navbar">
         <a href="index.html">Relax Cafe</a>
         <a href="menu.html">Menu</a>
-        <a href="Orders .html">Orders</a>
+        <a href="Orders .html">Orders</a> <!-- แก้ลิงก์ให้ถูกต้อง -->
         <a class="active">Users</a>
-        <a href="Discount .html">Discount</a>
+        <a href="Discount .html">Discount</a> <!-- แก้ลิงก์ให้ถูกต้อง -->
     </div>
     
     <div class="content-container">
@@ -120,9 +121,9 @@
                     <div class="form-group">
                         <label>Role <span class="required">*</span></label>
                         <select name="role">
-                            <option value="User">User</option>
-                            <option value="Manager">Manager</option>
-                            <option value="Admin">Admin</option>
+                            <option value="customer">Customer (ลูกค้า)</option>
+                            <option value="staff">Staff (พนักงาน)</option>
+                            <option value="admin">Admin (ผู้ดูแลระบบ)</option>
                         </select>
                     </div>
 
@@ -154,6 +155,8 @@
     </div>
 
 <script>
+    const API_URL = 'api_users.php'; // กำหนดไฟล์ API
+
     // สลับหน้า Tab
     function showPage(pageId, btn) {
         document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
@@ -170,27 +173,39 @@
         const tbody = document.getElementById('userTableBody');
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">กำลังโหลด...</td></tr>';
 
-        fetch('api_users.php')
+        fetch(API_URL)
             .then(res => res.json())
             .then(data => {
                 tbody.innerHTML = '';
-                if(data.length === 0) {
+                
+                // เช็ค Error จากฝั่ง PHP
+                if(data.status === 'error') {
+                     tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:red;">Error: ${data.message}</td></tr>`;
+                     return;
+                }
+
+                if(!Array.isArray(data) || data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">ไม่พบผู้ใช้งาน</td></tr>';
                     return;
                 }
 
                 data.forEach(user => {
-                    // เลือกสี Badge ตาม Role
+                    // *** แก้ชื่อตัวแปรให้เป็นตัวพิมพ์เล็กตามที่ Database ส่งมา ***
+                    // user.role, user.full_name, user.username
+                    
+                    let role = user.role ? user.role.toLowerCase() : 'user';
+                    
+                    // เลือกสี Badge
                     let roleClass = 'role-user';
-                    if(user.Role === 'Admin') roleClass = 'role-admin';
-                    if(user.Role === 'Manager') roleClass = 'role-manager';
+                    if(role === 'admin') roleClass = 'role-admin';
+                    if(role === 'manager' || role === 'staff') roleClass = 'role-manager';
 
                     const tr = `
                         <tr>
                             <td>${user.user_id}</td>
                             <td><strong>${user.username}</strong></td>
-                            <td>${user.Full_Name || '-'}</td>
-                            <td><span class="role-badge ${roleClass}">${user.role}</span></td>
+                            <td>${user.full_name || '-'}</td>
+                            <td><span class="role-badge ${roleClass}">${user.role || '-'}</span></td>
                             <td>${user.phone || '-'}</td>
                             <td>${user.email || '-'}</td>
                             <td style="font-size:14px;">${user.address || '-'}</td>
@@ -204,7 +219,7 @@
             })
             .catch(err => {
                 console.error(err);
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:red;">เกิดข้อผิดพลาด</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:red;">เกิดข้อผิดพลาดในการเชื่อมต่อ</td></tr>';
             });
     }
 
@@ -212,11 +227,10 @@
     document.getElementById('addUserForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // แปลง FormData เป็น Object JSON
         const formData = new FormData(this);
         const data = Object.fromEntries(formData.entries());
 
-        fetch('api_users.php', {
+        fetch(API_URL, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
@@ -231,18 +245,22 @@
                 alert('Error: ' + result.message);
             }
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+            console.error(err);
+            alert('ไม่สามารถติดต่อเซิร์ฟเวอร์ได้');
+        });
     });
 
     // ลบผู้ใช้งาน
     function deleteUser(id) {
         if(confirm('ยืนยันการลบผู้ใช้งาน ID: ' + id + '?')) {
-            fetch(`api_users.php?action=delete&id=${id}`)
+            fetch(`${API_URL}?action=delete&id=${id}`)
                 .then(res => res.json())
                 .then(result => {
                     if(result.status === 'success') loadUsers();
-                    else alert('ลบไม่สำเร็จ');
-                });
+                    else alert('ลบไม่สำเร็จ: ' + result.message);
+                })
+                .catch(err => console.error(err));
         }
     }
 

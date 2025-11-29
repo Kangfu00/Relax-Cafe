@@ -133,18 +133,17 @@
     </div>
 
 <script>
+    // 👇👇👇 กำหนดชื่อไฟล์ PHP ที่นี่ครับ (ถ้าอยู่บน Server ใช้ชื่อไฟล์ได้เลย) 👇👇👇
+    const API_URL = 'api_menu.php'; 
+
     // --- 1. ฟังก์ชันสลับหน้า (Tab Switching) ---
     function showPage(pageId, btn) {
-        // ซ่อนทุกหน้า
         document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-        // เอา active ออกจากปุ่มทุกปุ่ม
         document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
         
-        // แสดงหน้าที่เลือก และทำปุ่มให้ active
         document.getElementById(pageId).classList.add('active');
         if(btn) btn.classList.add('active');
 
-        // ถ้าเปิดหน้ารายการ ให้โหลดข้อมูลใหม่เสมอ
         if(pageId === 'menu-list-page') {
             loadMenus();
         }
@@ -155,32 +154,42 @@
         const listArea = document.getElementById('menu-list-rows');
         listArea.innerHTML = '<p style="text-align:center;">กำลังโหลดข้อมูล...</p>';
 
-        fetch('api_menu.php')
+        fetch(API_URL)
             .then(response => response.json())
             .then(data => {
                 listArea.innerHTML = '';
-                if (data.length === 0) {
-                    listArea.innerHTML = '<p style="text-align:center;">ไม่พบเมนูในระบบ</p>';
-                    return;
-                }
+                // ... (โค้ดเช็ค Error เดิม) ...
+
+                // 👇👇👇 1. สร้างตัวแปรสำหรับแปล ID เป็นชื่อหมวดหมู่ 👇👇👇
+                const categoryNames = {
+                    1: "Coffee (กาแฟ)",
+                    2: "Bakery (เบเกอรี่)",
+                    3: "Non-Coffee (เครื่องดื่มอื่นๆ)",
+                    4: "Food (อาหาร)"
+                };
 
                 data.forEach(menu => {
-                    // เช็คว่ามีรูปไหม
-                    const imgTag = menu.Image_url 
-                        ? `<img src="${menu.Image_url}" class="menu-img-thumb">`
-                        : `<div class="menu-img-thumb" style="display:flex;align-items:center;justify-content:center;color:#666;font-size:10px;">No Img</div>`;
+                    const imgTag = menu.image_url 
+                        ? `<img src="${menu.image_url}" class="menu-img-thumb">`
+                        : `<div class="menu-img-thumb" style="...">No Img</div>`;
 
-                    // จัดการสีสถานะ
-                    const statusClass = menu.Status === 'available' ? 'status-active' : 'status-inactive';
-                    const statusText = menu.Status === 'available' ? 'พร้อมขาย' : 'หมด';
+                    const statusClass = menu.status === 'available' ? 'status-active' : 'status-inactive';
+                    const statusText = menu.status === 'available' ? 'พร้อมขาย' : 'หมด';
+
+                    // 👇👇👇 2. แปลง ID เป็นชื่อตรงนี้ครับ 👇👇👇
+                    // ถ้าหาไม่เจอให้แสดงเป็นเลข ID เดิม
+                    const catName = categoryNames[menu.category_id] || `ID: ${menu.category_id}`;
 
                     const row = document.createElement('div');
                     row.className = 'list-row';
                     row.innerHTML = `
-                        <span>${menu.Menu_id}</span>
+                        <span>${menu.menu_id}</span>
                         <div>${imgTag}</div>
                         <span style="text-align:left; font-weight:500;">${menu.menu_name}</span>
-                        <span>ID: ${menu.Category_id}</span>
+                        
+                        <!-- 👇👇👇 3. เอาตัวแปร catName มาใส่ตรงนี้แทน 👇👇👇 -->
+                        <span>${catName}</span>
+                        
                         <span style="font-weight:bold; color:#2563eb;">${parseFloat(menu.price).toFixed(0)} ฿</span>
                         <span class="${statusClass}">${statusText}</span>
                         <span class="delete-btn" onclick="deleteMenu(${menu.menu_id})">❌</span>
@@ -188,29 +197,23 @@
                     listArea.appendChild(row);
                 });
             })
-            .catch(error => {
-                console.error('Error:', error);
-                listArea.innerHTML = '<p style="text-align:center; color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
-            });
+            .catch(error => { /* ... */ });
     }
 
-    // --- 3. เพิ่มเมนู (Fetch POST with FormData) ---
+    // --- 3. เพิ่มเมนู (Fetch POST) ---
     document.getElementById('add-menu-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // ใช้ FormData เพราะมีการอัปโหลดไฟล์รูปภาพ
         const formData = new FormData(this);
 
-        fetch('api_menu.php', {
+        fetch(API_URL, { // ใช้ตัวแปร API_URL
             method: 'POST',
-            body: formData // ไม่ต้องตั้ง Content-Type เพราะ FormData จัดการให้เอง
+            body: formData 
         })
         .then(response => response.json())
         .then(result => {
             if (result.status === 'success') {
                 alert('บันทึกเมนูเรียบร้อยแล้ว!');
-                this.reset(); // ล้างฟอร์ม
-                // สลับไปหน้า List
+                this.reset(); 
                 showPage('menu-list-page', document.getElementById('btn-list'));
             } else {
                 alert('เกิดข้อผิดพลาด: ' + result.message);
@@ -222,14 +225,15 @@
         });
     });
 
-    // --- 4. ลบเมนู (Fetch GET action=delete) ---
+    // --- 4. ลบเมนู (Fetch DELETE action) ---
     function deleteMenu(id) {
         if(confirm('คุณต้องการลบเมนู ID: ' + id + ' ใช่หรือไม่?')) {
-            fetch(`api_menu.php?action=delete&id=${id}`)
+            // ใช้ตัวแปร API_URL และส่งค่า action=delete
+            fetch(`${API_URL}?action=delete&id=${id}`)
                 .then(res => res.json())
                 .then(result => {
                     if(result.status === 'success') {
-                        loadMenus(); // โหลดตารางใหม่
+                        loadMenus(); 
                     } else {
                         alert('ลบไม่สำเร็จ: ' + result.message);
                     }
@@ -242,7 +246,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         loadMenus();
     });
-
 </script>
 
 </body>

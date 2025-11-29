@@ -1,7 +1,8 @@
 <?php
+// ไฟล์นี้ชื่อ api_users.php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-require_once 'db.php'; // เรียกไฟล์ connect database เดิม
+require_once 'db.php'; // เรียกไฟล์เชื่อมต่อฐานข้อมูล
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
@@ -17,21 +18,22 @@ if ($action == 'delete' && isset($_GET['id'])) {
     exit();
 }
 
-// 2. เพิ่มผู้ใช้งานใหม่ (POST)
+// 2. เพิ่มผู้ใช้งาน (POST)
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
 
     try {
-        // เข้ารหัส Password ก่อนบันทึก (เพื่อความปลอดภัย)
-        $hashed_password = password_hash($data['password'], PASSWORD_DEFAULT);
+        // แฮชรหัสผ่านก่อนเก็บ (เพื่อความปลอดภัย) แต่ถ้าเอาแบบง่ายๆ เก็บ text ธรรมดาก็ได้
+        // $password = password_hash($data['password'], PASSWORD_DEFAULT); 
+        $password = $data['password']; 
 
-        $sql = "INSERT INTO users (username, Password, full_name, role, phone, email, address) 
-                VALUES (:usr, :pwd, :fname, :role, :phone, :email, :addr)";
+        $sql = "INSERT INTO users (username, password, full_name, role, phone, email, address, created_at) 
+                VALUES (:usr, :pwd, :fname, :role, :phone, :email, :addr, NOW())";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':usr' => $data['username'],
-            ':pwd' => $hashed_password,
+            ':pwd' => $password,
             ':fname' => $data['fullname'],
             ':role' => $data['role'],
             ':phone' => $data['phone'],
@@ -40,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ]);
 
         echo json_encode(['status' => 'success']);
-
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
@@ -49,15 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // 3. ดึงข้อมูลผู้ใช้งานทั้งหมด (GET)
 try {
-    $stmt = $conn->query("SELECT * FROM users ORDER BY user_id DESC");
-    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // ลบ field password ออกก่อนส่งกลับไปหน้าเว็บ เพื่อความปลอดภัย
-    foreach ($users as $key => $user) {
-        unset($users[$key]['Password']);
-    }
-
-    echo json_encode($users);
+    // เลือกฟิลด์มาแสดง (ไม่ควรส่ง password กลับไป)
+    $stmt = $conn->query("SELECT user_id, username, full_name, role, phone, email, address, created_at FROM users ORDER BY user_id DESC");
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode($result);
 } catch (PDOException $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }

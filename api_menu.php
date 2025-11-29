@@ -1,6 +1,9 @@
 <?php
+// api_menu.php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
+
+// เรียกใช้ไฟล์เชื่อมต่อฐานข้อมูล
 require_once 'db.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -8,8 +11,7 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 // 1. ลบเมนู
 if ($action == 'delete' && isset($_GET['id'])) {
     try {
-        // (Optional: ควรลบไฟล์รูปออกจาก folder uploads ด้วย ถ้าต้องการระบบที่สมบูรณ์)
-        $stmt = $conn->prepare("DELETE FROM Menu WHERE Menu_id = ?");
+        $stmt = $conn->prepare("DELETE FROM menu WHERE menu_id = ?");
         $stmt->execute([$_GET['id']]);
         echo json_encode(['status' => 'success']);
     } catch (PDOException $e) {
@@ -21,19 +23,24 @@ if ($action == 'delete' && isset($_GET['id'])) {
 // 2. เพิ่มเมนู (รองรับไฟล์รูปภาพ)
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
+        // รับค่าจาก Form
         $menu_name = $_POST['menu_name'];
         $category_id = $_POST['category_id'];
         $price = $_POST['price'];
         $description = $_POST['description'];
         $status = $_POST['status'];
-        $image_url = ""; // ค่าเริ่มต้น
+        $image_url = ""; 
 
         // จัดการอัปโหลดไฟล์
         if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] == 0) {
             $target_dir = "uploads/";
-            if (!file_exists($target_dir)) mkdir($target_dir, 0777, true); // สร้าง folder ถ้ายังไม่มี
+            // สร้างโฟลเดอร์ uploads ถ้ายังไม่มี
+            if (!file_exists($target_dir)) {
+                mkdir($target_dir, 0777, true);
+            }
 
             $file_extension = strtolower(pathinfo($_FILES["image_file"]["name"], PATHINFO_EXTENSION));
+            // ตั้งชื่อไฟล์ใหม่กันซ้ำ
             $new_filename = uniqid("menu_", true) . "." . $file_extension;
             $target_file = $target_dir . $new_filename;
 
@@ -64,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // 3. ดึงข้อมูลเมนูทั้งหมด (GET)
 try {
-    // เรียงตาม ID ล่าสุด
     $stmt = $conn->query("SELECT * FROM menu ORDER BY menu_id DESC");
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($result);
