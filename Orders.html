@@ -377,13 +377,32 @@
     });
 
     // --- โหลดออเดอร์ (List) ---
-    function loadOrders() {
-        const listArea = document.getElementById('order-list-rows');
-        listArea.innerHTML = '<p style="text-align:center;">กำลังโหลด...</p>';
-        fetch('api_orders.php')
+    // --- โหลดข้อมูล Users ใส่ Dropdown ---
+    function loadUsers() {
+        fetch('api_orders.php?action=get_users')
             .then(res => res.json())
-            .then(data => { allOrders = data; renderTable(data); })
-            .catch(err => console.error(err));
+            .then(data => {
+                const select = document.getElementById('user_select');
+                select.innerHTML = '<option value="">-- เลือกลูกค้า --</option>';
+                
+                // หา ID ของลูกค้าทั่วไป (Walk-in) ถ้ามี
+                let walkInId = "";
+                
+                data.forEach(u => {
+                    const name = u.full_name || u.username;
+                    select.innerHTML += `<option value="${u.user_id}">[${u.user_id}] ${name}</option>`;
+                    
+                    // เช็คว่าถ้าชื่อมีคำว่า Walk-in หรือ Guest ให้จำ ID ไว้
+                    if(name.includes('Walk-in') || name.includes('ทั่วไป') || u.username === 'guest') {
+                        walkInId = u.user_id;
+                    }
+                });
+
+                // ถ้าเจอ Walk-in ให้เลือกเป็นค่าเริ่มต้นทันที
+                if(walkInId) {
+                    select.value = walkInId;
+                }
+            });
     }
 
     function renderTable(data) {
