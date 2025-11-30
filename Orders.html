@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Relax Cafe - Orders</title>
+<style>
+    /* --- Relax Cafe Theme Styles (คงเดิม) --- */
+    body { font-family: "Prompt", sans-serif; background-color: #d8bc9b; margin: 0; padding: 0; }
+    .navbar { display: flex; justify-content: center; gap: 70px; padding: 20px 0; font-size: 22px; font-weight: bold; }
+    .navbar a { color: #5d5d5d; text-decoration: none; transition: color 0.2s; }
+    .navbar .active { color: #7e50c8; border-bottom: 3px solid #7e50c8; padding-bottom: 5px; }
+    .content-container { background: #fdfae9; width: 90%; margin: 20px auto 0; border-radius: 6px; padding: 40px; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); min-height: 600px; }
+    h2 { text-align: center; margin-top: 0; font-size: 28px; color: #5d5d5d; }
+    
+    /* Styles เดิม... */
+    .filter-bar { display: flex; gap: 15px; margin-bottom: 20px; justify-content: flex-end; }
+    .search-box { padding: 10px; border-radius: 6px; border: 1px solid #ccc; width: 250px; background: #f1f1e9; }
+    .filter-select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; background: #f1f1e9; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    label { margin-bottom: 6px; font-weight: 600; color: #5d5d5d; }
+    input, select, textarea { padding: 10px; border-radius: 6px; border: none; background: #f1f1e9; font-size: 16px; }
+    .submit-btn { background-color: #69c84c; color: white; padding: 12px 25px; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; margin-top: 25px; display: block; margin-left: auto; }
+    .submit-btn:hover { background-color: #58a83e; }
+    .list-header { display: grid; grid-template-columns: 80px 120px 1fr 100px 100px 100px 60px; gap: 10px; padding: 12px 10px; text-align: center; font-weight: bold; background-color: #f1f1e9; margin-top: 10px; border-radius: 6px; border-bottom: 2px solid #ccc; }
+    .list-row { display: grid; grid-template-columns: 80px 120px 1fr 100px 100px 100px 60px; gap: 10px; padding: 12px 10px; text-align: center; background-color: #f1f1e9; margin-top: 10px; border-radius: 6px; align-items: center; font-size: 15px; }
+    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; min-width: 70px; }
+    .st-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+    .st-preparing { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; }
+    .st-completed { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
+    .st-cancelled { background: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; }
+    .delete-btn { cursor: pointer; color: #ff0000; font-size: 18px; }
+    .price-text { color: #2563eb; font-weight: bold; }
+    .bottom-menu { display: flex; justify-content: center; gap: 40px; margin: 40px 0; }
+    .menu-btn { background-color: white; border: none; padding: 18px 40px; border-radius: 45px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0px 4px 12px rgba(0,0,0,0.15); transition: 0.2s; border: 2px solid transparent; }
+    .menu-btn.active { background-color: #f0e6ff; border: 2px solid #7e50c8; color: #7e50c8; box-shadow: 0px 4px 15px rgba(126, 80, 200, 0.4); }
+    .page-content { display: none; }
+    .page-content.active { display: block; }
+    
+    /* CSS เพิ่มเติมสำหรับส่วนสรุปยอด */
+    .summary-box {
+        background: #fff;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #666;
+    }
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 2px dashed #ddd;
+        font-size: 20px;
+        font-weight: bold;
+        color: #2563eb;
+    }
+</style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="index.html">Relax Cafe</a>
+        <a href="menu.html">Menu</a>
+        <a class="active">Orders</a>
+        <a href="Users.html">Users</a>
+        <a href="Discount.html">Discount</a>
+    </div>
+    
+    <div class="content-container">
+
+        <div id="order-list-page" class="page-content active">
+            <h2>รายการคำสั่งซื้อ</h2>
+            
+            <div class="filter-bar">
+                <input type="text" id="searchInput" class="search-box" placeholder="🔍 ค้นหาลูกค้า หรือ ID..." onkeyup="filterOrders()">
+                <select id="statusFilter" class="filter-select" onchange="filterOrders()">
+                    <option value="">ทุกสถานะ</option>
+                    <option value="pending">รอตรวจสอบ</option>
+                    <option value="preparing">กำลังทำ</option>
+                    <option value="completed">เสร็จสิ้น</option>
+                    <option value="cancelled">ยกเลิก</option>
+                </select>
+            </div>
+
+            <div class="list-header">
+                <span>ID</span>
+                <span>วัน-เวลา</span>
+                <span style="text-align:left;">ลูกค้า</span>
+                <span>ยอดรวม</span>
+                <span>ส่วนลด/โปร</span>
+                <span>สถานะ</span>
+                <span>ลบ</span>
+            </div>
+            <div id="order-list-rows"></div>
+        </div>
+
+        <div id="add-order-page" class="page-content">
+            <h2>เปิดออเดอร์ใหม่ (POS)</h2>
+            <form id="add-order-form">
+                <div class="form-grid">
+    
+                    <div class="form-group">
+                        <label>เลือกลูกค้า (Customer) *</label>
+                        <select id="user_select" name="user_id" required>
+                            <option value="">-- กำลังโหลด... --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>วัน-เวลาที่สั่ง *</label>
+                        <input type="datetime-local" id="order_date" name="order_date" required>
+                    </div>
+
+                    <div class="form-group full-width" style="background: #fff; padding: 15px; border-radius: 6px;">
+                        <label>รายการสินค้า (Order Items)</label>
+                        <table style="width:100%; text-align: left;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid #ccc;">
+                                    <th>เมนู</th>
+                                    <th width="80">ราคา</th>
+                                    <th width="80">จำนวน</th>
+                                    <th width="40">ลบ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="order_items_body"></tbody>
+                        </table>
+                        <button type="button" onclick="addOrderRow()" style="margin-top:10px; padding:5px 10px; cursor:pointer;">+ เพิ่มรายการ</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>โปรโมชั่น (Promotion)</label>
+                        <select name="promotion_id" id="promotion_select" onchange="calculateTotal()">
+                            <option value="">-- ไม่เลือกโปรโมชั่น --</option>
+                            </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>โค้ดส่วนลด (Discount Coupon)</label>
+                        <select name="discount_id" id="discount_select" onchange="calculateTotal()">
+                            <option value="">-- ไม่ใช้โค้ดส่วนลด --</option>
+                            </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>สรุปยอดชำระ (Payment Summary)</label>
+                        <div class="summary-box">
+                            <div class="summary-row">
+                                <span>ยอดรวมสินค้า (Subtotal):</span>
+                                <span id="display_subtotal">0.00 ฿</span>
+                            </div>
+                            <div class="summary-row" style="color: green;">
+                                <span>หักโปรโมชั่น (Promo):</span>
+                                <span id="display_promo_discount">-0.00 ฿</span>
+                            </div>
+                            <div class="summary-row" style="color: green;">
+                                <span>หักส่วนลดท้ายบิล (Discount):</span>
+                                <span id="display_code_discount">-0.00 ฿</span>
+                            </div>
+                            <div class="summary-total">
+                                <span>ยอดสุทธิ (Net Total):</span>
+                                <span id="display_final_total">0.00 ฿</span>
+                            </div>
+                        </div>
+                        <input type="hidden" name="total_amount" id="hidden_total_amount" value="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>สถานะ</label>
+                        <select name="order_status">
+                            <option value="pending">Pending</option>
+                            <option value="preparing">Preparing</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Note</label>
+                        <textarea name="note" style="height: 40px;"></textarea>
+                    </div>
+
+                </div>
+                <button type="submit" class="submit-btn">บันทึกออเดอร์</button>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="bottom-menu">
+        <button class="menu-btn active" id="btn-list" onclick="showPage('order-list-page', this)">รายการออเดอร์</button>
+        <button class="menu-btn" id="btn-add" onclick="showPage('add-order-page', this)">เพิ่มออเดอร์</button>
+    </div>
+
+<script>
+    let allOrders = [];
+    let menuDataList = [];
+    let discountDataList = [];
+    let promotionDataList = [];
+
+    // --- สลับหน้า ---
+    function showPage(pageId, btn) {
+        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        if(btn) btn.classList.add('active');
+        if(pageId === 'order-list-page') loadOrders();
+    }
+
+    // --- โหลดข้อมูล Dropdown ต่างๆ ---
+    function loadUsers() {
+        fetch('api_orders.php?action=get_users')
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('user_select');
+                select.innerHTML = '<option value="">-- เลือกลูกค้า --</option>';
+                data.forEach(u => {
+                    const name = u.full_name || u.username; // ใช้ full_name (ตัวเล็กตามที่แก้ไป)
+                    select.innerHTML += `<option value="${u.user_id}">[${u.user_id}] ${name}</option>`;
+                });
+            });
+    }
+
+    function loadMenuData() {
+        fetch('api_menu.php').then(res => res.json()).then(data => { menuDataList = data; });
+    }
+
+    // โหลด Promotions แล้วใส่ใน <select>
+    function loadPromotions() {
+        fetch('api_promotion.php').then(res => res.json()).then(data => {
+            promotionDataList = data;
+            const select = document.getElementById('promotion_select');
+            data.forEach(p => {
+                if(p.status === 'active') { // เอาเฉพาะที่ Active
+                    select.innerHTML += `<option value="${p.promotion_id}" data-percent="${p.discount_percent}">${p.promotion_name} (-${parseFloat(p.discount_percent)}%)</option>`;
+                }
+            });
+        });
+    }
+
+    // โหลด Discounts แล้วใส่ใน <select>
+    function loadDiscounts() {
+        fetch('api_discount.php').then(res => res.json()).then(data => {
+            discountDataList = data;
+            const select = document.getElementById('discount_select');
+            data.forEach(d => {
+                if(d.status === 'active') { // เอาเฉพาะที่ Active
+                    let text = `${d.discount_name}`;
+                    if(d.discount_type === 'percent') text += ` (-${parseFloat(d.discount_value)}%)`;
+                    else text += ` (-${parseFloat(d.discount_value)}฿)`;
+                    
+                    select.innerHTML += `<option value="${d.discount_id}" data-type="${d.discount_type}" data-val="${d.discount_value}">${text}</option>`;
+                }
+            });
+        });
+    }
+
+    // --- ระบบตารางสินค้า ---
+    function addOrderRow() {
+        const tbody = document.getElementById('order_items_body');
+        const row = document.createElement('tr');
+        
+        let options = '<option value="">-- เลือกเมนู --</option>';
+        menuDataList.forEach(m => {
+            if(m.status === 'available') {
+                options += `<option value="${m.menu_id}" data-price="${m.price}">${m.menu_name}</option>`;
+            }
+        });
+
+        row.innerHTML = `
+            <td><select class="item-select" onchange="calculateTotal()" style="width:100%;">${options}</select></td>
+            <td class="item-price">0.00</td>
+            <td><input type="number" class="item-qty" value="1" min="1" onchange="calculateTotal()" style="width:60px;"></td>
+            <td><span style="color:red; cursor:pointer;" onclick="this.closest('tr').remove(); calculateTotal();">❌</span></td>
+        `;
+        tbody.appendChild(row);
+    }
+
+    // --- ระบบคำนวณเงิน (สำคัญ!) ---
+    function calculateTotal() {
+        // 1. หา Subtotal (ราคาสินค้า x จำนวน)
+        let subtotal = 0;
+        document.querySelectorAll('#order_items_body tr').forEach(row => {
+            const select = row.querySelector('.item-select');
+            const qtyInput = row.querySelector('.item-qty');
+            const priceDisplay = row.querySelector('.item-price');
+
+            if (select.value) {
+                const price = parseFloat(select.options[select.selectedIndex].getAttribute('data-price')) || 0;
+                const qty = parseInt(qtyInput.value) || 1;
+                priceDisplay.innerText = price.toFixed(2);
+                subtotal += price * qty;
+            }
+        });
+
+        // 2. คำนวณ Promotion (Percent)
+        let promoDeduction = 0;
+        const promoSelect = document.getElementById('promotion_select');
+        if (promoSelect.value) {
+            const percent = parseFloat(promoSelect.options[promoSelect.selectedIndex].getAttribute('data-percent')) || 0;
+            promoDeduction = subtotal * (percent / 100);
+        }
+
+        // ยอดหลังหักโปร
+        let afterPromo = subtotal - promoDeduction;
+
+        // 3. คำนวณ Discount Code (Percent หรือ Amount)
+        let discountDeduction = 0;
+        const discSelect = document.getElementById('discount_select');
+        if (discSelect.value) {
+            const type = discSelect.options[discSelect.selectedIndex].getAttribute('data-type');
+            const val = parseFloat(discSelect.options[discSelect.selectedIndex].getAttribute('data-val')) || 0;
+
+            if (type === 'percent') {
+                discountDeduction = afterPromo * (val / 100);
+            } else {
+                discountDeduction = val;
+            }
+        }
+
+        // 4. สรุปยอดสุทธิ (ห้ามติดลบ)
+        let finalTotal = afterPromo - discountDeduction;
+        if (finalTotal < 0) finalTotal = 0;
+
+        // แสดงผล
+        document.getElementById('display_subtotal').innerText = subtotal.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ฿';
+        document.getElementById('display_promo_discount').innerText = '-' + promoDeduction.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ฿';
+        document.getElementById('display_code_discount').innerText = '-' + discountDeduction.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ฿';
+        
+        document.getElementById('display_final_total').innerText = finalTotal.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' ฿';
+        document.getElementById('hidden_total_amount').value = finalTotal;
+    }
+
+    // --- Submit Form ---
+    document.getElementById('add-order-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        const items = [];
+        document.querySelectorAll('#order_items_body tr').forEach(row => {
+            const select = row.querySelector('.item-select');
+            const qty = row.querySelector('.item-qty');
+            if(select.value) {
+                items.push({
+                    menu_id: select.value,
+                    quantity: qty.value,
+                    price: select.options[select.selectedIndex].getAttribute('data-price')
+                });
+            }
+        });
+
+        if(items.length === 0) { alert("กรุณาเลือกเมนูอย่างน้อย 1 รายการ"); return; }
+        data.items = items; 
+
+        fetch('api_orders.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === 'success') {
+                alert('บันทึกออเดอร์เรียบร้อย!');
+                location.reload();
+            } else {
+                alert('Error: ' + res.message);
+            }
+        });
+    });
+
+    // --- โหลดออเดอร์ (List) ---
+    function loadOrders() {
+        const listArea = document.getElementById('order-list-rows');
+        listArea.innerHTML = '<p style="text-align:center;">กำลังโหลด...</p>';
+        fetch('api_orders.php')
+            .then(res => res.json())
+            .then(data => { allOrders = data; renderTable(data); })
+            .catch(err => console.error(err));
+    }
+
+    function renderTable(data) {
+        const listArea = document.getElementById('order-list-rows');
+        listArea.innerHTML = '';
+        if(data.length === 0) { listArea.innerHTML = '<p style="text-align:center;">ไม่พบข้อมูล</p>'; return; }
+
+        data.forEach(o => {
+            const dateStr = new Date(o.order_date).toLocaleDateString('th-TH', { day:'2-digit', month:'short', year:'2-digit', hour:'2-digit', minute:'2-digit' });
+            let badgeClass = 'st-pending';
+            if(o.order_status === 'preparing') badgeClass = 'st-preparing';
+            else if(o.order_status === 'completed') badgeClass = 'st-completed';
+            else if(o.order_status === 'cancelled') badgeClass = 'st-cancelled';
+
+            let extras = [];
+            if(o.discount_id) extras.push(`Code:${o.discount_id}`);
+            if(o.promotion_id) extras.push(`Promo:${o.promotion_id}`);
+            const extraStr = extras.length > 0 ? extras.join(', ') : '-';
+
+            const row = document.createElement('div');
+            row.className = 'list-row';
+            row.innerHTML = `
+                <span>#${o.order_id}</span>
+                <span style="font-size:13px;">${dateStr}</span>
+                <span style="text-align:left; font-weight:500;">${o.full_name || o.username || 'User:'+o.user_id}</span>
+                <span class="price-text">${parseFloat(o.total_amount).toLocaleString()} ฿</span>
+                <span style="font-size:12px; color:#666;">${extraStr}</span>
+                <span><span class="status-badge ${badgeClass}">${o.order_status}</span></span>
+                <span class="delete-btn" onclick="deleteOrder(${o.order_id})">❌</span>
+            `;
+            listArea.appendChild(row);
+        });
+    }
+    
+    // --- Delete & Init ---
+    function deleteOrder(id) {
+        if(confirm('ต้องการลบ Order #' + id + ' ใช่หรือไม่?')) {
+            fetch(`api_orders.php?action=delete&id=${id}`).then(res => res.json()).then(res => { if(res.status === 'success') loadOrders(); });
+        }
+    }
+    function initDate() {
+        const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('order_date').value = now.toISOString().slice(0, 16);
+    }
+    function filterOrders() { /* ...Logic เดิม... */ 
+        const txt = document.getElementById('searchInput').value.toLowerCase();
+        const st = document.getElementById('statusFilter').value;
+        const filtered = allOrders.filter(o => {
+            const nameMatch = (o.full_name || '').toLowerCase().includes(txt) || (o.username || '').toLowerCase().includes(txt) || o.order_id.toString().includes(txt);
+            const statusMatch = st === '' || o.order_status === st;
+            return nameMatch && statusMatch;
+        });
+        renderTable(filtered);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadOrders();
+        loadUsers();
+        initDate();
+        loadMenuData();
+        loadPromotions(); // เพิ่มใหม่
+        loadDiscounts();  // เพิ่มใหม่
+    });
+</script>
+
+</body>
+</html>

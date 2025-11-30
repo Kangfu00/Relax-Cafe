@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Relax Cafe - Discount & Promotion</title>
 <style>
-    /* --- CSS เหมือนเดิม --- */
+    /* --- CSS (เหมือนเดิม) --- */
     body { font-family: "Prompt", sans-serif; background-color: #d8bc9b; margin: 0; padding: 0; }
     .navbar { display: flex; justify-content: center; gap: 70px; padding: 20px 0; font-size: 22px; font-weight: bold; }
     .navbar a { color: #5d5d5d; text-decoration: none; transition: color 0.2s; }
@@ -36,14 +36,13 @@
     <div class="navbar">
         <a href="index.html">Relax Cafe</a>
         <a href="menu.html">Menu</a>
-        <a href="Orders .html">Orders</a>
+        <a href="Orders.html">Orders</a>
         <a href="Users.html">Users</a>
         <a class="active">Discount</a>
     </div>
     
     <div class="content-container">
 
-        <!-- หน้าเพิ่ม Discount -->
         <div id="add-discount-page" class="page-content">
             <h2>เพิ่มลดราคา (Discount)</h2>
             <form id="add-discount-form">
@@ -52,7 +51,6 @@
                     <div class="form-group"><label>End Date</label><input type="date" id="add_d_end" required></div>
                     <div class="form-group"><label>Discount Type</label>
                         <select id="add_d_type" required>
-                            <!-- value ต้องเป็นตัวพิมพ์เล็กตาม ENUM ใน DB -->
                             <option value="percent">Percent (%)</option>
                             <option value="amount">Fixed Amount (฿)</option>
                         </select>
@@ -70,7 +68,6 @@
             </form>
         </div>
 
-        <!-- หน้ารายการ Discount -->
         <div id="discount-list-page" class="page-content">
             <h2>รายการส่วนลด</h2>
             <div class="list-header">
@@ -86,15 +83,25 @@
             <div id="discount-list-rows"></div>
         </div>
 
-        <!-- หน้าเพิ่ม Promotion -->
         <div id="add-promotion-page" class="page-content active">
             <h2>เพิ่มโปรโมชัน (Promotion)</h2>
             <form id="add-promotion-form">
                 <div class="form-grid">
-                    <div class="form-group"><label>Promotion Name</label><input type="text" id="add_p_name" required></div>
-                    <div class="form-group"><label>Menu ID (Optional)</label><input type="number" id="add_p_menu_id" placeholder="ใส่เลข ID เมนู"></div>
+                    <div class="form-group">
+                        <label>Promotion Name</label>
+                        <input type="text" id="add_p_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Menu (เลือกเมนูที่ร่วมรายการ)</label>
+                        <select id="add_p_menu_id">
+                            <option value="">-- กำลังโหลดข้อมูล... --</option>
+                        </select>
+                        <small style="color:#666; font-size:12px;">*หากเลือก "ใช้ได้ทุกเมนู" จะนำไปลดราคาทุกรายการในออเดอร์</small>
+                    </div>
+
                     <div class="form-group"><label>Description</label><input type="text" id="add_p_desc"></div>
-                    <div class="form-group"><label>Discount Percent</label><input type="number" id="add_p_percent" step="0.01"></div>
+                    <div class="form-group"><label>Discount Percent (%)</label><input type="number" id="add_p_percent" step="0.01"></div>
                     <div class="form-group"><label>Start Date</label><input type="date" id="add_p_start" required></div>
                     <div class="form-group"><label>Status</label>
                         <select id="add_p_status" required>
@@ -108,7 +115,6 @@
             </form>
         </div>
 
-        <!-- หน้ารายการ Promotion -->
         <div id="promotion-list-page" class="page-content">
             <h2>รายการโปรโมชัน</h2>
             <div id="promotion-list-rows"></div>
@@ -125,6 +131,8 @@
 
 
 <script>
+    let menuMap = {}; // ตัวแปรสำหรับแปลง ID เป็นชื่อเมนู
+
     // ฟังก์ชันสลับหน้า
     function showPage(pageIdToShow, clickedButton) {
         document.querySelectorAll('.page-content').forEach(page => page.classList.remove('active'));
@@ -135,6 +143,29 @@
 
         if (pageIdToShow === 'discount-list-page') loadDiscounts();
         if (pageIdToShow === 'promotion-list-page') loadPromotions();
+    }
+
+    // -----------------------------------
+    // โหลดข้อมูลเมนู (สำหรับ Dropdown & แสดงชื่อ)
+    // -----------------------------------
+    function loadMenus() {
+        fetch('api_menu.php')
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('add_p_menu_id');
+                // เพิ่มตัวเลือก "ทุกเมนู"
+                select.innerHTML = '<option value="">-- ใช้ได้ทุกเมนู (All Menus) --</option>';
+                
+                data.forEach(m => {
+                    // เก็บชื่อเมนูลง map ไว้ใช้ตอนแสดงตาราง
+                    menuMap[m.menu_id] = m.menu_name;
+
+                    // เพิ่มลง Dropdown เฉพาะเมนูที่ขายอยู่
+                    if(m.status === 'available') {
+                        select.innerHTML += `<option value="${m.menu_id}">[${m.menu_id}] ${m.menu_name}</option>`;
+                    }
+                });
+            });
     }
 
     // -----------------------------------
@@ -226,19 +257,26 @@
                     return;
                 }
                 data.forEach(p => {
+                    // แปลง MenuID เป็น ชื่อเมนู
+                    let menuNameShow = 'ทุกเมนู (All)';
+                    if(p.menu_id && menuMap[p.menu_id]) {
+                        menuNameShow = menuMap[p.menu_id];
+                    } else if (p.menu_id) {
+                        menuNameShow = 'ID: ' + p.menu_id; // กรณีหาชื่อไม่เจอ
+                    }
+
                     const div = document.createElement('div');
                     div.className = 'list-row-promotion';
                     div.innerHTML = `
                         <div class="promo-row-1">
                             <span>${p.promotion_id}</span>
                             <span>${p.promotion_name}</span>
-                            <span>${p.pescription || '-'}</span>
-                            <span>${p.start_date}</span>
+                            <span>${p.description || '-'}</span> <span>${p.start_date}</span>
                             <span>${p.end_date}</span>
                             <span class="delete-btn" onclick="deletePromotion(${p.promotion_id})">❌</span>
                         </div>
                         <div class="promo-row-2">
-                            <span>Menu ID: ${p.menu_id || 'All'}</span>
+                            <span>ใช้กับ: <strong>${menuNameShow}</strong></span>
                             <span>Discount: ${p.discount_percent}%</span>
                             <span>Status: ${p.status}</span>
                         </div>
@@ -264,7 +302,7 @@
         e.preventDefault();
         const data = {
             promotion_name: document.getElementById('add_p_name').value,
-            menu_id: document.getElementById('add_p_menu_id').value,
+            menu_id: document.getElementById('add_p_menu_id').value, // ส่งค่าจาก Dropdown
             description: document.getElementById('add_p_desc').value,
             discount_percent: document.getElementById('add_p_percent').value,
             start_date: document.getElementById('add_p_start').value,
@@ -291,7 +329,8 @@
 
     // เริ่มต้น
     document.addEventListener('DOMContentLoaded', () => {
-        loadPromotions(); // โหลดหน้าแรกที่ active
+        loadMenus(); // โหลดรายชื่อเมนูมารอก่อน
+        loadPromotions();
     });
 
 </script>
