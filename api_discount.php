@@ -9,7 +9,8 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 // --- 1. ลบข้อมูล (Delete) ---
 if ($action == 'delete' && isset($_GET['id'])) {
     try {
-        $stmt = $conn->prepare("DELETE FROM discounts WHERE discount_id = ?");
+        // แก้ discounts -> discount
+        $stmt = $conn->prepare("DELETE FROM discount WHERE discount_id = ?");
         $stmt->execute([$_GET['id']]);
         echo json_encode(['status' => 'success']);
     } catch (PDOException $e) {
@@ -24,7 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
 
     try {
-        $sql = "INSERT INTO discounts (discount_name, discount_type, discount_value, start_date, end_date, status) 
+        // แก้ discounts -> discount
+        $sql = "INSERT INTO discount (discount_name, discount_type, discount_value, start_date, end_date, status) 
                 VALUES (:name, :type, :val, :start, :end, :status)";
         
         $stmt = $conn->prepare($sql);
@@ -46,7 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // --- 3. ดึงข้อมูลทั้งหมด (List - GET) ---
 try {
-    $stmt = $conn->query("SELECT * FROM discounts ORDER BY discount_id DESC");
+    // แก้ discounts -> discount
+    $stmt = $conn->query("SELECT * FROM discount ORDER BY discount_id DESC");
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($result);
 } catch (PDOException $e) {

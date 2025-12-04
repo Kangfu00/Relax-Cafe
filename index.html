@@ -1,137 +1,231 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Relax Cafe - Home</title>
     <link rel="icon" type="image/x-icon" href="/image/icon.png">
-    <link rel="stylesheet" href="/css/index.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-body {
-    font-family: "prompt-extralight", sans-serif;
-    margin: 0;
-    padding: 0;
-    background-image: url('/image/index/karl-fredrickson-TYIzeCiZ_60-unsplash.jpg');
-    background-repeat: no-repeat;
-    background-size: cover;
-}
+        /* --- Theme หลัก (เหมือนหน้าอื่น) --- */
+        body {
+            font-family: "Prompt", sans-serif;
+            background-color: #d8bc9b; /* สีพื้นหลังหลัก */
+            margin: 0;
+            padding: 0;
+        }
 
-a {
-    color: inherit;         
-    text-decoration: none; 
-}
+        /* Navbar ด้านบน */
+        .navbar {
+            display: flex;
+            justify-content: center;
+            gap: 70px;
+            padding: 20px 0;
+            font-size: 22px;
+            font-weight: bold;
+            background-color: transparent; /* หรือใส่สีพื้นถ้าต้องการ */
+        }
+        .navbar a {
+            color: #5d5d5d;
+            text-decoration: none;
+            transition: color 0.2s;
+            padding-bottom: 5px;
+        }
+        .navbar a:hover {
+            color: #7e50c8;
+        }
+        .navbar .active {
+            color: #7e50c8;
+            border-bottom: 3px solid #7e50c8;
+        }
 
+        /* กล่องคอนเทนเนอร์หลัก */
+        .content-container {
+            background: #fdfae9;
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto 40px; /* ระยะห่าง */
+            border-radius: 20px; /* ขอบมนกว่าเดิมนิดหน่อยให้ดูละมุน */
+            padding: 50px;
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
 
-a:hover {
-    text-decoration: underline;
-}
+        /* --- ส่วน Hero (ข้อความ + รูปภาพ) --- */
+        .hero-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 50px;
+            margin-bottom: 60px;
+        }
 
-.text_top {
-    height: auto;
-    min-height: 150px;
-    width: auto;
-    color: #fff;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    position: absolute;
-    top: 50%;
-    left: 48px;
-    transform: translateY(-50%);
-    padding: 0;
-    background: none;
-    z-index: 10;
-}
+        .hero-text {
+            flex: 1;
+            text-align: left;
+        }
 
-.text_top h3 {
-    background: linear-gradient(90deg, #ffe5b4 0%, #ffb347 50%, #ffcc70 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    opacity: 0;
-    transform: translateX(-60px);
-    animation: fadeSlideLeft 1s ease forwards;
-    margin-bottom: 6px;
-    line-height: 1.1;
-    text-shadow: 0px 0px 10px #ffe5b4   ;
-}
+        .hero-text h1 {
+            font-size: 48px;
+            color: #5d5d5d;
+            margin: 0 0 20px 0;
+            line-height: 1.2;
+        }
+        
+        /* ใส่ Gradient ให้ข้อความเด่นๆ */
+        .highlight-text {
+            background: linear-gradient(90deg, #d97706 0%, #b45309 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-.text_top h3:nth-child(1) {
-    animation-delay: 0.1s;
-}
-.text_top h3:nth-child(2) {
-    animation-delay: 0.4s;
-}
-.text_top h3:nth-child(3) {
-    animation-delay: 0.7s;
-}
+        .hero-text p {
+            font-size: 18px;
+            color: #777;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
 
-@keyframes fadeSlideLeft {
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+        /* รูปภาพหน้าปก */
+        .hero-img {
+            flex: 1;
+            max-width: 500px;
+            height: 350px;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 20px 20px 0px rgba(216, 188, 155, 0.5); /* ลูกเล่นกรอบเงา */
+            transition: transform 0.3s;
+        }
+        .hero-img:hover {
+            transform: scale(1.02);
+        }
 
-.box2 {
-    height: 70px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 24px;
-    background: rgba(255, 255, 255, 0.18);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-    backdrop-filter: blur(6px);
-    border-radius: 18px 18px 0 0;
-    border: 1px solid rgba(255,255,255,0.3);
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    margin-top: 0;
-    z-index: 100;
-    transition: box-shadow 0.3s;
-}
+        /* --- เมนูลัด (Quick Actions) --- */
+        .quick-menu-title {
+            text-align: center;
+            font-size: 24px;
+            color: #5d5d5d;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
 
-.box2:hover {
-    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.28);
-}
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+        }
 
-.box2 > * {
-    padding: 10px 24px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.5);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    border: none;
-    font-size: 1.1rem;
-    color: #333;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-    cursor: pointer;
-}
+        .menu-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            text-decoration: none;
+            color: #5d5d5d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 140px;
+        }
 
-.box2 > *:hover {
-    background: #ffe5b4;
-    color: #7c4a00;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-}
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: #7e50c8;
+            color: #7e50c8;
+            box-shadow: 0 10px 25px rgba(126, 80, 200, 0.15);
+        }
+
+        .icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* ปรับมือถือ */
+        @media (max-width: 768px) {
+            .hero-section {
+                flex-direction: column-reverse;
+                text-align: center;
+            }
+            .hero-text {
+                text-align: center;
+            }
+            .hero-img {
+                width: 100%;
+                height: 250px;
+                box-shadow: 10px 10px 0px rgba(216, 188, 155, 0.5);
+            }
+            .navbar {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="text_top">
-        <h3 style="font-size: 40px;">ยินดีต้อนรับ</h3>
-        <h3 style="font-size: 50px;">"ร้านเล็กๆ ที่ชงทุกแก้วด้วยใจ </h3>
-        <h3 style="font-size: 50px;">เหมือนกาแฟแก้วโปรดที่บ้านของคุณ"</h3>
+
+    <div class="navbar">
+        <a class="active" href="#">Relax Cafe</a>
+        <a href="menu.html">Menu</a>
+        <a href="Orders.html">Orders</a>
+        <a href="Users.html">Users</a>
+        <a href="Discount.html">Discount</a>
     </div>
-    <div class="box2">
-        <button><a href="menu.html">Menu</a></button>
-        <button><a href="Orders.html">Order</a></button>
-        <button><a href="Users.html">User</a></button>
-        <button><a href="Discount.html">Discount</a></button>
+
+    <div class="content-container">
+        
+        <div class="hero-section">
+            <div class="hero-text">
+                <h1>ยินดีต้อนรับสู่<br><span class="highlight-text">Relax Cafe Manager</span></h1>
+                <p>
+                    "ร้านเล็กๆ ที่ชงทุกแก้วด้วยใจ<br>
+                    เหมือนกาแฟแก้วโปรดที่บ้านของคุณ"
+                </p>
+                <div style="font-size: 14px; color: #999;">
+                    ระบบบริหารจัดการร้านกาแฟครบวงจร<br>
+                    จัดการออเดอร์ • เมนู • สมาชิก • โปรโมชั่น
+                </div>
+            </div>
+            <img src="/image/index/karl-fredrickson-TYIzeCiZ_60-unsplash.jpg" alt="Coffee Shop" class="hero-img">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 40px 0;">
+
+        <div class="quick-menu-title">เลือกรายการที่ต้องการจัดการ</div>
+        
+        <div class="menu-grid">
+
+            <a href="menu.html" class="menu-card">
+                <span class="icon">📖</span>
+                <span class="card-title">จัดการเมนู</span>
+            </a>
+
+            <a href="Orders.html" class="menu-card">
+                <span class="icon">☕</span>
+                <span class="card-title">ขายหน้าร้าน (POS)</span>
+            </a>
+
+            <a href="Users.html" class="menu-card">
+                <span class="icon">👥</span>
+                <span class="card-title">ข้อมูลสมาชิก</span>
+            </a>
+
+            <a href="Discount.html" class="menu-card">
+                <span class="icon">🏷️</span>
+                <span class="card-title">ส่วนลด & โปรฯ</span>
+            </a>
+        </div>
+
     </div>
+
 </body>
 </html>

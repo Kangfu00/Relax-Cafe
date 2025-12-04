@@ -1,8 +1,7 @@
 <?php
-// ไฟล์นี้ชื่อ api_users.php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-require_once 'db.php'; // เรียกไฟล์เชื่อมต่อฐานข้อมูล
+require_once 'db.php';
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
@@ -23,19 +22,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
 
     try {
-        // แฮชรหัสผ่านก่อนเก็บ (เพื่อความปลอดภัย) แต่ถ้าเอาแบบง่ายๆ เก็บ text ธรรมดาก็ได้
-        // $password = password_hash($data['password'], PASSWORD_DEFAULT); 
+        // --- ส่วนที่แก้: แปลงชื่อ Role เป็น ID ---
+        // คุณต้องเช็คใน Database ตาราง roles ว่า ID อะไรคืออะไร
+        // สมมติว่า: 1=Admin, 2=Staff, 3=Customer (ถ้าไม่ใช่ ให้แก้เลขตรงนี้นะครับ)
+        $role_id = 1; // ค่าเริ่มต้นเป็น Customer
+        if ($data['role'] === 'admin') {
+            $role_id = 3;
+        } elseif ($data['role'] === 'staff' || $data['role'] === 'manager') {
+            $role_id = 2;
+        } elseif ($data['role'] === 'customer') {
+            $role_id = 1;
+        }
+
+        // แฮชรหัสผ่าน (ถ้าต้องการ)
         $password = $data['password']; 
 
-        $sql = "INSERT INTO users (username, password, full_name, role, phone, email, address, created_at) 
-                VALUES (:usr, :pwd, :fname, :role, :phone, :email, :addr, NOW())";
+        // แก้ชื่อคอลัมน์จาก role -> role_id
+        $sql = "INSERT INTO users (username, password, full_name, role_id, phone, email, address, created_at) 
+                VALUES (:usr, :pwd, :fname, :rid, :phone, :email, :addr, NOW())";
         
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':usr' => $data['username'],
             ':pwd' => $password,
             ':fname' => $data['fullname'],
-            ':role' => $data['role'],
+            ':rid' => $role_id, // ส่งเป็น ID แทน
             ':phone' => $data['phone'],
             ':email' => $data['email'],
             ':addr' => $data['address']
@@ -50,8 +61,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // 3. ดึงข้อมูลผู้ใช้งานทั้งหมด (GET)
 try {
-    // เลือกฟิลด์มาแสดง (ไม่ควรส่ง password กลับไป)
-    $stmt = $conn->query("SELECT user_id, username, full_name, role, phone, email, address, created_at FROM users ORDER BY user_id DESC");
+    // --- ส่วนที่แก้: ใช้ JOIN เพื่อดึงชื่อ Role มาแสดง ---
+    // เพราะในตาราง users มีแค่ role_id เราต้องไปเอาชื่อจากตาราง roles
+    $sql = "SELECT u.user_id, u.username, u.full_name, u.phone, u.email, u.address, u.created_at,
+                   r.role_name as role 
+            FROM users u
+            LEFT JOIN roles r ON u.role_id = r.role_id
+            ORDER BY u.user_id DESC";
+            
+    $stmt = $conn->query($sql);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($result);
 } catch (PDOException $e) {

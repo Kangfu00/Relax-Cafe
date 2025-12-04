@@ -9,7 +9,8 @@ $action = isset($_GET['action']) ? $_GET['action'] : '';
 // --- 1. ลบข้อมูล (Delete) ---
 if ($action == 'delete' && isset($_GET['id'])) {
     try {
-        $stmt = $conn->prepare("DELETE FROM promotions WHERE promotion_id = ?");
+        // แก้ Promotions -> promotion
+        $stmt = $conn->prepare("DELETE FROM promotion WHERE promotion_id = ?");
         $stmt->execute([$_GET['id']]);
         echo json_encode(['status' => 'success']);
     } catch (PDOException $e) {
@@ -23,12 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
 
     try {
+        // แก้ Promotions -> promotion
         $sql = "INSERT INTO promotion (promotion_name, menu_id, description, discount_percent, start_date, end_date, status) 
                 VALUES (:name, :menu_id, :desc, :percent, :start, :end, :status)";
         
         $stmt = $conn->prepare($sql);
         
-        // จัดการ Menu_id: ถ้าไม่ได้กรอกมา (เป็นค่าว่าง) ให้ใส่ NULL ลงฐานข้อมูล
         $menuId = !empty($data['menu_id']) ? $data['menu_id'] : null;
 
         $stmt->execute([
@@ -37,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ':desc'    => $data['description'],
             ':percent' => $data['discount_percent'],
             ':start'   => $data['start_date'],
-            ':end'     => $data['end_date'], // ใน HTML คุณส่ง key นี้เป็นตัวพิมพ์เล็ก
+            ':end'     => $data['end_date'],
             ':status'  => $data['status']
         ]);
 
@@ -50,10 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // --- 3. ดึงข้อมูลทั้งหมด (List - GET) ---
 try {
-    $stmt = $conn->query("SELECT * FROM Promotions ORDER BY promotion_id DESC");
+    // แก้ Promotions -> promotion
+    $stmt = $conn->query("SELECT * FROM promotion ORDER BY promotion_id DESC");
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode($result);
 } catch (PDOException $e) {
+    // ถ้า Error ให้ส่ง Array ว่างกลับไป
     echo json_encode([]);
 }
 ?>
